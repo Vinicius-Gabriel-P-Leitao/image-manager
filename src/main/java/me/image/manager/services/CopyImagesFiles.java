@@ -7,10 +7,10 @@ import javafx.scene.control.ProgressBar;
 import me.image.manager.components.DefaultAlert;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.*;
+import java.nio.file.FileSystemException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +30,7 @@ public class CopyImagesFiles {
         });
 
         try {
-            if (!Files.exists(destinationPath))
-                Files.createDirectories(destinationPath);
+            if (!Files.exists(destinationPath)) Files.createDirectories(destinationPath);
 
             if (Files.isRegularFile(originPath)) {
                 copySingleFile(originPath, destinationPath);
@@ -122,15 +121,13 @@ public class CopyImagesFiles {
      * Caso o código entre no primeiro catch ele verifica se o erro gerado está relacionado a uso do arquivo e pausa a thread pro 1s
      * </p>
      *
-     * @param sourceFile
-     * @param destinationFile
-     * @throws IOException
+     * @param sourceFile      Arquivo de origem
+     * @param destinationFile Pasta de destino
+     * @throws IOException Exceção de acesso com fluxo de arquivos
      */
     public void copySingleFile(Path sourceFile, Path destinationFile) throws IOException {
-
         try {
             Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-
         } catch (IOException ioException) {
             if (ioException instanceof FileSystemException) {
                 try {
@@ -139,7 +136,8 @@ public class CopyImagesFiles {
 
                 } catch (IOException | InterruptedException exception) {
                     Platform.runLater(() -> {
-                        new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro ao copiar arquivo: " + exception.getMessage(), "Erro ao copiar!");
+                        new DefaultAlert()
+                                .alert(Alert.AlertType.ERROR, "Erro ao copiar arquivo: " + exception.getMessage(), "Erro ao copiar!");
                     });
 
                     throw new RuntimeException("Erro ao copiar arquivo: " + exception.getMessage(), exception);

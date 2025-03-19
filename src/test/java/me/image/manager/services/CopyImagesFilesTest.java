@@ -18,11 +18,11 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CopyImagesFilesTest extends ApplicationTest {
-    private CopyImagesFiles copyImagesFiles;
+    private CopyImageFiles copyImagesFiles;
 
     @Override
     public void start(Stage stage) {
-        copyImagesFiles = new CopyImagesFiles();
+        copyImagesFiles = new CopyImageFiles();
     }
 
     /**
@@ -60,7 +60,7 @@ class CopyImagesFilesTest extends ApplicationTest {
         ProgressBar progressBar = new ProgressBar();
 
         Path destinationFilePath = destinationPath.resolve("image.png");
-        copyImagesFiles.copyFiles(originPath, destinationFilePath, progressBar);
+        copyImagesFiles.createTaskCopyFiles(originPath, destinationFilePath, progressBar);
 
 
         assertTrue(Files.exists(destinationFilePath), "O arquivo copiado não foi encontrado.");
@@ -78,7 +78,7 @@ class CopyImagesFilesTest extends ApplicationTest {
         ProgressBar progressBar = new ProgressBar();
 
         try {
-            copyImagesFiles.copyFiles(null, null, progressBar);
+            copyImagesFiles.createTaskCopyFiles(null, null, progressBar);
         } catch (RuntimeException exception) {
             assert exception.getMessage().contains("Os diretórios não podem ser vazios.");
         }
@@ -94,7 +94,7 @@ class CopyImagesFilesTest extends ApplicationTest {
         ProgressBar progressBar = new ProgressBar();
 
         try {
-            copyImagesFiles.copyFiles(originPath, destinationPath, progressBar);
+            copyImagesFiles.createTaskCopyFiles(originPath, destinationPath, progressBar);
         } catch (RuntimeException exception) {
             assert exception.getMessage().contains("Erro ao listar arquivos");
         }

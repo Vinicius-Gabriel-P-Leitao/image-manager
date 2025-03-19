@@ -44,10 +44,10 @@
             </goals>
             <configuration>
               <transformers>
+                <transformer />
                 <transformer>
                   <mainClass>me.image.manager.Main</mainClass>
                 </transformer>
-                <transformer />
               </transformers>
             </configuration>
           </execution>

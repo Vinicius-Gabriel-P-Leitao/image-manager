@@ -52,6 +52,7 @@
             <version>12.3.1</version>
         </dependency>
         <!--Dependências para icons -->
+        <!--Dependência para testes-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -64,6 +65,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <version>4.0.18</version>
+            <scope>test</scope>
+        </dependency>
+        <!--Dependência para testes-->
     </dependencies>
 
     <build>

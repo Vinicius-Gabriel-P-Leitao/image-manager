@@ -16,7 +16,6 @@ import java.util.List;
 
 public class CopyImagesFiles {
     public Task<Void> copyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
-
         if (originPath == null || destinationPath == null) {
             Platform.runLater(() -> {
                 new DefaultAlert().alert(Alert.AlertType.ERROR, "Os diretórios não podem ser vazios!", "Os diretórios não podem ser vazios!");
@@ -36,7 +35,7 @@ public class CopyImagesFiles {
                 copySingleFile(originPath, destinationPath);
 
             } else if (Files.isDirectory(originPath)) {
-                Task<Void> copyTask = new Task<Void>() {
+                return new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
                         List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
@@ -88,20 +87,9 @@ public class CopyImagesFiles {
                                 new DefaultAlert().alert(Alert.AlertType.WARNING, "Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(15).toList() + "...", "Arquivos Ignorados");
                             }
                         });
-
                         return null;
                     }
                 };
-
-                Platform.runLater(() -> {
-                    progressBar.progressProperty().bind(copyTask.progressProperty());
-                });
-
-                Thread copyThread = new Thread(copyTask);
-                copyThread.setDaemon(true);
-                copyThread.start();
-
-                return copyTask;
             }
         } catch (IOException exception) {
             Platform.runLater(() -> {
@@ -121,7 +109,7 @@ public class CopyImagesFiles {
      * Caso o código entre no primeiro catch ele verifica se o erro gerado está relacionado a uso do arquivo e pausa a thread pro 1s
      * </p>
      *
-     * @param sourceFile      Arquivo de origem
+     * @param sourceFile        Arquivo de origem
      * @param destinationFolder Pasta de destino
      * @throws IOException Exceção de acesso com fluxo de arquivos
      */

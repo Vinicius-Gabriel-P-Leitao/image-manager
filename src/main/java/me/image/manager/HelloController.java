@@ -13,7 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import me.image.manager.components.DefaultAlert;
-import me.image.manager.services.CopyImagesFiles;
+import me.image.manager.services.CopyImageFiles;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,13 +22,12 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public class HelloController {
-    private Stage stage;
-
     public TextField text_field_origin_copy;
     public TextField text_field_destination_copy;
     public TextField text_field_origin_rename;
     public TextField text_field_origin_convert;
     public ProgressBar progressBar;
+    private Stage stage;
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -88,10 +87,12 @@ public class HelloController {
                     throw new RuntimeException("Não foi possível acessar os arquivos na pasta de origem.");
                 }
 
-                Task<Void> copyTask = new CopyImagesFiles().copyFiles(originPath, destinationPath, progressBar);
+                Task<Void> copyTask = new CopyImageFiles().createTaskCopyFiles(originPath, destinationPath, progressBar);
 
                 if (copyTask != null) {
-                    progressBar.progressProperty().bind(copyTask.progressProperty());
+                    Platform.runLater(() -> {
+                        progressBar.progressProperty().bind(copyTask.progressProperty());
+                    });
 
                     copyTask.setOnSucceeded(event -> {
                         Platform.runLater(() -> {
@@ -105,6 +106,10 @@ public class HelloController {
                         });
                     });
                 }
+
+                Thread copyThread = new Thread(copyTask);
+                copyThread.setDaemon(true);
+                copyThread.start();
 
                 return null;
             }

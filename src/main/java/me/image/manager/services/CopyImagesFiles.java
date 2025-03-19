@@ -7,9 +7,10 @@ import javafx.scene.control.ProgressBar;
 import me.image.manager.components.DefaultAlert;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,8 @@ public class CopyImagesFiles {
         });
 
         try {
-            Files.createDirectories(destinationPath);
+            if (!Files.exists(destinationPath))
+                Files.createDirectories(destinationPath);
 
             if (Files.isRegularFile(originPath)) {
                 copySingleFile(originPath, destinationPath);
@@ -64,9 +66,12 @@ public class CopyImagesFiles {
                             for (Path sourceFile : filesToCopy) {
                                 Path destinationFile = destinationPath.resolve(sourceFile.getFileName());
 
-                                if (!Files.exists(destinationFile)) {
-                                    copySingleFile(sourceFile, destinationFile);
+                                if (Files.exists(destinationFile)) {
+                                    skippedFiles.add(sourceFile.getFileName().toString());
+                                    continue;
                                 }
+
+                                copySingleFile(sourceFile, destinationFile);
 
                                 copiedFiles++;
                                 updateProgress(copiedFiles, totalFiles);
@@ -77,7 +82,9 @@ public class CopyImagesFiles {
                             if (!notValidExtension.isEmpty()) {
                                 new DefaultAlert().alert(Alert.AlertType.WARNING, "Alguns arquivos não podem ser copiados: \n" + notValidExtension, "Arquivos não válidos");
                             }
+                        });
 
+                        Platform.runLater(() -> {
                             if (!skippedFiles.isEmpty()) {
                                 new DefaultAlert().alert(Alert.AlertType.WARNING, "Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(15).toList() + "...", "Arquivos Ignorados");
                             }
@@ -86,7 +93,10 @@ public class CopyImagesFiles {
                         return null;
                     }
                 };
-                progressBar.progressProperty().bind(copyTask.progressProperty());
+
+                Platform.runLater(() -> {
+                    progressBar.progressProperty().bind(copyTask.progressProperty());
+                });
 
                 Thread copyThread = new Thread(copyTask);
                 copyThread.setDaemon(true);
@@ -98,32 +108,44 @@ public class CopyImagesFiles {
             Platform.runLater(() -> {
                 new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro ao listar arquivos: " + exception.getMessage(), "Erro ao listar arquivos");
             });
-            throw new RuntimeException("Erro ao listar arquivos: " + exception.getMessage());
+            throw new RuntimeException("Erro ao listar arquivos: " + exception.getMessage(), exception);
         }
 
         return null;
     }
 
-    private void copySingleFile(Path sourceFile, Path destinationFile) throws IOException {
-        if (Files.exists(destinationFile)) {
-            return;
-        }
+    /**
+     * <h4>Método para copiar arquivos de forma unitária uma a um</h4>
+     *
+     * <p>
+     * Código recebe o arquivo a ser copiado e a pasta de destino, após isso entra em um try. catch que vai tentar copiar os arquivos e caso existam eles são substituídos
+     * Caso o código entre no primeiro catch ele verifica se o erro gerado está relacionado a uso do arquivo e pausa a thread pro 1s
+     * </p>
+     *
+     * @param sourceFile
+     * @param destinationFile
+     * @throws IOException
+     */
+    public void copySingleFile(Path sourceFile, Path destinationFile) throws IOException {
 
         try {
             Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException exception) {
-            if (exception.getMessage().contains("usado")) {
+
+        } catch (IOException ioException) {
+            if (ioException instanceof FileSystemException) {
                 try {
                     Thread.sleep(1000);
                     Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException | InterruptedException exception1) {
+
+                } catch (IOException | InterruptedException exception) {
                     Platform.runLater(() -> {
-                        new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro ao copiar arquivo: " + exception1.getMessage(), "Erro ao copiar!");
+                        new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro ao copiar arquivo: " + exception.getMessage(), "Erro ao copiar!");
                     });
-                    throw new RuntimeException(exception1.getMessage());
+
+                    throw new RuntimeException("Erro ao copiar arquivo: " + exception.getMessage(), exception);
                 }
             } else {
-                throw exception;
+                throw ioException;
             }
         }
     }

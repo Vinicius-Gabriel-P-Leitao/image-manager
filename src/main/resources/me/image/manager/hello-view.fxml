@@ -18,7 +18,7 @@
             <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
                 <TextField fx:id="text_field_origin_copy" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
                            text="Caminho de origem"/>
-                <Button id="button_origin_copy" onAction="#openDirectoryChooser" onMouseEntered="#onPointerMouse">
+                <Button id="button_origin_copy" onAction="#onOpenDirectoryChooser" onMouseEntered="#onPointerMouse">
                     <graphic>
                         <FontIcon id="button_origin_copy_icon" iconLiteral="zondi-folder-outline"
                                   styleClass="font-icon"/>
@@ -31,7 +31,7 @@
             <HBox id="hbox_copy_destination_input" alignment="CENTER" spacing="10">
                 <TextField fx:id="text_field_destination_copy" maxHeight="25" maxWidth="450" minHeight="20"
                            minWidth="400" text="Caminho de destino"/>
-                <Button id="button_destination_copy" onAction="#openDirectoryChooser" onMouseEntered="#onPointerMouse">
+                <Button id="button_destination_copy" onAction="#onOpenDirectoryChooser" onMouseEntered="#onPointerMouse">
                     <graphic>
                         <FontIcon id="button_destination_copy_icon" iconLiteral="zondi-folder-outline"
                                   styleClass="font-icon"/>
@@ -57,7 +57,7 @@
             <HBox id="hbox_rename_origin_input" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                 <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
                            text="Caminho de origem"/>
-                <Button id="button_directory_origin_rename" onAction="#openDirectoryChooser">
+                <Button id="button_directory_origin_rename" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_rename" iconLiteral="zondi-folder-outline"
                                   styleClass="font-icon"/>
@@ -72,7 +72,7 @@
             <HBox id="hbox_convert_origin_input" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                 <TextField fx:id="text_field_origin_convert" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
                            text="Caminho de origem"/>
-                <Button id="button_directory_origin_convert" onAction="#openDirectoryChooser">
+                <Button id="button_directory_origin_convert" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_convert" iconLiteral="zondi-folder-outline"
                                   styleClass="font-icon"/>

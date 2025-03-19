@@ -5,7 +5,6 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
@@ -36,7 +35,7 @@ public class HelloController {
     }
 
     @FXML
-    private void openDirectoryChooser(ActionEvent event) {
+    private void onOpenDirectoryChooser(ActionEvent event) {
         DirectoryChooser pathChooser = new DirectoryChooser();
         pathChooser.setInitialDirectory(Paths.get(System.getProperty("user.dir")).toFile());
         pathChooser.setTitle("Escolher pastas");

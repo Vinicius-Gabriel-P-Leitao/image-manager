@@ -14,8 +14,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CopyImagesFiles {
-    public Task<Void> copyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
+public class CopyImageFiles {
+    public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
         if (originPath == null || destinationPath == null) {
             Platform.runLater(() -> {
                 new DefaultAlert().alert(Alert.AlertType.ERROR, "Os diretórios não podem ser vazios!", "Os diretórios não podem ser vazios!");
@@ -113,7 +113,7 @@ public class CopyImagesFiles {
      * @param destinationFolder Pasta de destino
      * @throws IOException Exceção de acesso com fluxo de arquivos
      */
-    public void copySingleFile(Path sourceFile, Path destinationFolder) throws IOException {
+    private void copySingleFile(Path sourceFile, Path destinationFolder) throws IOException {
         try {
             Files.copy(sourceFile, destinationFolder, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ioException) {

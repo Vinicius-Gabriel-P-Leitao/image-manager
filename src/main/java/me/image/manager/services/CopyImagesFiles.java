@@ -122,17 +122,17 @@ public class CopyImagesFiles {
      * </p>
      *
      * @param sourceFile      Arquivo de origem
-     * @param destinationFile Pasta de destino
+     * @param destinationFolder Pasta de destino
      * @throws IOException Exceção de acesso com fluxo de arquivos
      */
-    public void copySingleFile(Path sourceFile, Path destinationFile) throws IOException {
+    public void copySingleFile(Path sourceFile, Path destinationFolder) throws IOException {
         try {
-            Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(sourceFile, destinationFolder, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ioException) {
             if (ioException instanceof FileSystemException) {
                 try {
                     Thread.sleep(1000);
-                    Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(sourceFile, destinationFolder, StandardCopyOption.REPLACE_EXISTING);
 
                 } catch (IOException | InterruptedException exception) {
                     Platform.runLater(() -> {

@@ -18,9 +18,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class HelloController {
+    private static final String DATE_HYPHEN = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\-(0[0-9]|[1-5][0-9])\\-(0[0-9]|[1-5][0-9])$";
+    private static final String DATE_BARS = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\_(0[0-9]|1[0-2])\\_\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
+    private static final String DATE_COMPLETE = "^([0-9]|0[0-9]|1[0-9]|2[0-9]|3[01])\\_([A-Za-zÀ-ú]+)\\_(\\d{4})\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
+    // Variáveis de ui
     public TextField text_field_origin_copy;
     public TextField text_field_destination_copy;
     public TextField text_field_origin_rename;
@@ -29,11 +32,8 @@ public class HelloController {
     public ProgressBar progressbar_copy;
     public ProgressBar progressbar_rename;
     public ComboBox combo_box_rename;
-    public String date_hyphen = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\-(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\-(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
-    public String date_bars = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\/(0[0-9]|1[0-2])\\/\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
-    public String date_complete = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\/([a-z])\\/\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
-    private Alert alert;
     private Stage stage;
+    private Alert alert;
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -164,54 +164,54 @@ public class HelloController {
 
                         if (Objects.equals(comboBoxResult, "formato")) {
                             Platform.runLater(() -> {
-                                alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                alert = new Alert(Alert.AlertType.ERROR);
                                 alert.setTitle("Formado de nome");
                                 alert.setHeaderText("Nenhum formato para foi escolhido!");
-                                alert.setContentText("Se desejar continuar o arquivo ficara com o nome \"arquivoformato\"");
-
-                                ButtonType buttonTrue = new ButtonType("Continuar");
-                                ButtonType buttonFalse = new ButtonType("Não");
-
-                                alert.getButtonTypes().setAll(buttonTrue, buttonFalse);
-
-                                Optional<ButtonType> resultButtonEvent = alert.showAndWait();
-
-                                if (resultButtonEvent.isPresent() && resultButtonEvent.get() == buttonTrue) {
-                                    System.out.println("Usuário clicou em sim.");
-                                } else {
-                                    System.out.println("Usuário clicou em NÃO.");
-                                }
+                                alert.setContentText("Não é possível continuar a formatação de nome sem o formato definido!");
+                                alert.showAndWait();
                             });
                         }
 
-                        if (comboBoxResult.equals("01-01-2025_24-01-01")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_hyphen);
+                        if (comboBoxResult.equals("dd-MM-yyyy_HH-mm-ss")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_HYPHEN, comboBoxResult);
                         }
 
-                        if (comboBoxResult.equals("01/01/2025_24:01:01")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_bars);
+                        if (comboBoxResult.equals("dd_MM_yyyy_HH_mm_ss")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxResult);
                         }
 
-                        if (comboBoxResult.equals("1/janeiro/2025_24:01:01")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_complete);
+                        if (comboBoxResult.equals("dd_MMMM_yyyy_HH_mm_ss")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_COMPLETE, comboBoxResult);
                         }
 
                         if (renameTask != null) {
-                            renameTask.setOnSucceeded(e -> {
-                                System.out.println("Arquivos renomeados com sucesso!");
+                            renameTask.setOnSucceeded(workerStateEvent -> {
+                                alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Formado de nome");
+                                alert.setHeaderText("Arquivos renomeados com sucesso!");
+                                alert.setContentText("Os arquivos do diretório foram renomeados com sucesso: " + originPath);
+                                alert.showAndWait();
+
+                                progressbar_rename.progressProperty().unbind();
+                                progressbar_rename.setProgress(0);
                             });
 
-                            renameTask.setOnFailed(e -> {
-                                System.out.println("Falha na renomeação dos arquivos.");
+                            renameTask.setOnFailed(workerStateEvent -> {
+                                Throwable exception = workerStateEvent.getSource().getException();
+
+                                alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Falha na renomeação dos arquivos.");
+                                alert.setHeaderText("Falha na renomeação dos arquivos.");
+                                alert.setContentText("Não foi possível continuar o renomeio de arquivos devido a um erro: " + exception.getMessage());
+
+                                progressbar_rename.progressProperty().unbind();
+                                progressbar_rename.setProgress(0);
                             });
 
-                            new Thread(renameTask).start();
+                            Thread copyThread = new Thread(renameTask);
+                            copyThread.setDaemon(true);
+                            copyThread.start();
                         }
-
-                        if (renameTask == null) {
-                            System.out.println("Ola");
-                        }
-
                     } catch (Exception exception) {
                         throw new RuntimeException(exception);
                     }

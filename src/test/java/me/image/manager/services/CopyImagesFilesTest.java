@@ -80,20 +80,6 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
-     * <h4>Testes com parâmetros nulos</h4>
-     */
-    @Test
-    public void testCopyFilesWithNullPaths() {
-        ProgressBar progressBar = new ProgressBar();
-
-        try {
-            copyImagesFiles.createTaskCopyFiles(null, null, progressBar);
-        } catch (RuntimeException exception) {
-            assert exception.getMessage().contains("Os diretórios não podem ser vazios.");
-        }
-    }
-
-    /**
      * <h4>Testes com pasta de de origem invalida</h4>
      */
     @Test

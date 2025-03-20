@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
+<?import java.lang.String?>
 <TabPane id="main-pane" stylesheets="@css/hello-view.css" xmlns="http://javafx.com/javafx/23.0.1"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.image.manager.HelloController">
     <!--Tab de copiar arquivos-->
@@ -34,7 +36,7 @@
                 </Button>
             </HBox>
             <VBox id="hbox_copy_button_progress_bar" alignment="CENTER" spacing="10">
-                <ProgressBar minWidth="200.0" minHeight="20.0" progress="0.0" fx:id="progressBar"/>
+                <ProgressBar fx:id="progressbar_copy" minHeight="20.0" minWidth="200.0" progress="0.0"/>
                 <Button id="button_copy" onAction="#onCopyFiles" onMouseEntered="#onPointerMouse" text="Copiar">
                     <graphic>
                         <FontIcon id="button_copy_icon" iconLiteral="zondi-arrow-outline-up" styleClass="font-icon"/>
@@ -48,17 +50,44 @@
     </Tab>
     <!--Tab de renomear arquivos-->
     <Tab id="tab_rename" closable="false" text="Renomear">
-        <VBox id="vbox_rename_origin_input" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-            <HBox id="hbox_rename_origin_input" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
-                           text="Caminho de origem"/>
+        <VBox id="vbox_rename_origin_input" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15">
+            <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
+                <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20"
+                           minWidth="400" text="Caminho de origem"/>
                 <Button id="button_directory_origin_rename" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_rename" iconLiteral="zondi-folder-outline"
                                   styleClass="font-icon"/>
                     </graphic>
                 </Button>
+                <VBox.margin>
+                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                </VBox.margin>
             </HBox>
+            <HBox id="hbox_copy_destination_input" alignment="CENTER" spacing="10">
+                <TextField fx:id="text_field_name_file" maxHeight="25" maxWidth="330" minHeight="20" minWidth="255"
+                           text="Nome do arquivo"/>
+                <ComboBox fx:id="combo_box_rename" value="formato">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:id="date_hyphen" fx:value="01-01-2025_24-01-01"/>
+                            <String fx:id="date_bars" fx:value="01/01/2025_24:01:01"/>
+                            <String fx:id="date_complete" fx:value="1/janeiro/2025_24:01:01"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </HBox>
+            <VBox id="hbox_rename_button_progress_bar" alignment="CENTER" spacing="10">
+                <ProgressBar fx:id="progressbar_rename" minHeight="20.0" minWidth="200.0" progress="0.0"/>
+                <Button id="button_rename" onAction="#onRenameFiles" onMouseEntered="#onPointerMouse" text="Renomear">
+                    <graphic>
+                        <FontIcon id="button_rename_icon" iconLiteral="zondi-edit-copy" styleClass="font-icon"/>
+                    </graphic>
+                </Button>
+                <padding>
+                    <Insets top="10.0"/>
+                </padding>
+            </VBox>
         </VBox>
     </Tab>
     <!--Tab de converter arquivos-->

@@ -15,6 +15,7 @@
     </properties>
 
     <dependencies>
+        <!--Javafx-->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -40,6 +41,7 @@
             <artifactId>controlsfx</artifactId>
             <version>11.2.1</version>
         </dependency>
+        <!--Javafx-->
         <!--Dependências para icons -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
@@ -52,6 +54,13 @@
             <version>12.3.1</version>
         </dependency>
         <!--Dependências para icons -->
+        <!--Dependência para pegar métadados da imagem-->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+        <!--Dependência para pegar métadados da imagem-->
         <!--Dependência para testes-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

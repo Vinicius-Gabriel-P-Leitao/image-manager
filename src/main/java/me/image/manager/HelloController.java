@@ -5,28 +5,34 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import me.image.manager.components.DefaultAlert;
 import me.image.manager.services.CopyImageFiles;
+import me.image.manager.services.RenameFiles;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class HelloController {
     public TextField text_field_origin_copy;
     public TextField text_field_destination_copy;
     public TextField text_field_origin_rename;
     public TextField text_field_origin_convert;
-    public ProgressBar progressBar;
+    public TextField text_field_name_file;
+    public ProgressBar progressbar_copy;
+    public ProgressBar progressbar_rename;
+    public ComboBox combo_box_rename;
+    public String date_hyphen = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\-(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\-(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
+    public String date_bars = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\/(0[0-9]|1[0-2])\\/\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
+    public String date_complete = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\/([a-z])\\/\\d{4}\\_(0[1-9]|1[0-9]|2[0-4])\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)\\:(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-8]|59)$";
+    private Alert alert;
     private Stage stage;
 
     public void setStage(Stage stage) {
@@ -50,7 +56,11 @@ public class HelloController {
             if (textField != null) {
                 textField.setText(path.toString());
             } else {
-                new DefaultAlert().alert(Alert.AlertType.ERROR, "Não foi possível selecionar a pasta!", "Erro ao selecionar pasta!");
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Não foi possível selecionar a pasta!");
+                alert.setHeaderText("Não foi possível selecionar a pasta!");
+                alert.setContentText("Erro ao selecionar pasta!");
+                alert.showAndWait();
             }
         }
     }
@@ -66,55 +76,151 @@ public class HelloController {
 
     @FXML
     private void onCopyFiles(ActionEvent event) {
-        Button button = (Button) event.getSource();
+        if (event.getSource() instanceof Button) {
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    Path originPath = Path.of(text_field_origin_copy.getText().trim());
+                    Path destinationPath = Path.of(text_field_destination_copy.getText().trim());
 
-        Task<Void> task = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                Path originPath = Path.of(text_field_origin_copy.getText().trim());
-                Path destinationPath = Path.of(text_field_destination_copy.getText().trim());
 
-                if (!Files.exists(Path.of(text_field_origin_copy.getText()))) {
-                    Platform.runLater(() -> {
-                        new DefaultAlert().alert(Alert.AlertType.ERROR, String.format("A origem não existe: %s", text_field_origin_copy.getText()), "Pasta de origem incorreta");
-                    });
-
-                    throw new RuntimeException(String.format("A pasta de origem não existe: %s", text_field_origin_copy.getText()));
-                }
-
-                File[] files = originPath.toFile().listFiles();
-                if (files == null) {
-                    throw new RuntimeException("Não foi possível acessar os arquivos na pasta de origem.");
-                }
-
-                Task<Void> copyTask = new CopyImageFiles().createTaskCopyFiles(originPath, destinationPath, progressBar);
-
-                if (copyTask != null) {
-                    Platform.runLater(() -> {
-                        progressBar.progressProperty().bind(copyTask.progressProperty());
-                    });
-
-                    copyTask.setOnSucceeded(event -> {
+                    if (!Files.exists(Path.of(text_field_origin_copy.getText()))) {
                         Platform.runLater(() -> {
-                            new DefaultAlert().alert(Alert.AlertType.INFORMATION, "Copiado com sucesso!", "Todos os arquivos foram copiados com sucesso!");
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Pasta de origem incorreta!");
+                            alert.setHeaderText("Pasta de origem incorreta!");
+                            alert.setContentText(String.format("A origem não existe: %s", text_field_origin_copy.getText()));
+                            alert.showAndWait();
                         });
-                    });
-                    copyTask.setOnFailed(event -> {
-                        Throwable exception = event.getSource().getException();
+
+                        throw new RuntimeException(String.format("A pasta de origem não existe: %s", text_field_origin_copy.getText()));
+                    }
+
+                    File[] files = originPath.toFile().listFiles();
+                    if (files == null) {
+                        throw new RuntimeException("Não foi possível acessar os arquivos na pasta de origem.");
+                    }
+
+                    Task<Void> copyTask = new CopyImageFiles().createTaskCopyFiles(originPath, destinationPath, progressbar_copy);
+
+                    if (copyTask != null) {
                         Platform.runLater(() -> {
-                            new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro na cópiar: " + exception.getMessage(), "Ocorreu um erro na cópia dos arquivos.");
+                            progressbar_copy.progressProperty().bind(copyTask.progressProperty());
                         });
-                    });
+
+                        copyTask.setOnSucceeded(event -> {
+                            Platform.runLater(() -> {
+                                alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Copiado com sucesso!");
+                                alert.setHeaderText("Copiado com sucesso!");
+                                alert.setContentText("Todos os arquivos foram copiados com sucesso!");
+                                alert.showAndWait();
+
+                                progressbar_copy.progressProperty().unbind();
+                                progressbar_copy.setProgress(0);
+                            });
+                        });
+
+                        copyTask.setOnFailed(event -> {
+                            Throwable exception = event.getSource().getException();
+
+                            Platform.runLater(() -> {
+                                alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Ocorreu um erro na cópia dos arquivos.");
+                                alert.setHeaderText("Ocorreu um erro na cópia dos arquivos.");
+                                alert.setContentText("Erro na cópiar: " + exception.getMessage());
+                                alert.showAndWait();
+
+                                progressbar_copy.progressProperty().unbind();
+                                progressbar_copy.setProgress(0);
+                            });
+                        });
+                    }
+
+                    Thread copyThread = new Thread(copyTask);
+                    copyThread.setDaemon(true);
+                    copyThread.start();
+
+                    return null;
                 }
+            };
 
-                Thread copyThread = new Thread(copyTask);
-                copyThread.setDaemon(true);
-                copyThread.start();
+            new Thread(task).start();
+        }
+    }
 
-                return null;
-            }
-        };
+    @FXML
+    private void onRenameFiles(ActionEvent event) {
+        if (event.getSource() instanceof Button) {
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    Path originPath = Path.of(text_field_origin_rename.getText().trim());
+                    String nameFile = text_field_name_file.getText().trim();
+                    String comboBoxResult = combo_box_rename.getValue().toString();
 
-        new Thread(task).start();
+                    try {
+                        Task<Void> renameTask = null;
+
+                        if (Objects.equals(comboBoxResult, "formato")) {
+                            Platform.runLater(() -> {
+                                alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                alert.setTitle("Formado de nome");
+                                alert.setHeaderText("Nenhum formato para foi escolhido!");
+                                alert.setContentText("Se desejar continuar o arquivo ficara com o nome \"arquivoformato\"");
+
+                                ButtonType buttonTrue = new ButtonType("Continuar");
+                                ButtonType buttonFalse = new ButtonType("Não");
+
+                                alert.getButtonTypes().setAll(buttonTrue, buttonFalse);
+
+                                Optional<ButtonType> resultButtonEvent = alert.showAndWait();
+
+                                if (resultButtonEvent.isPresent() && resultButtonEvent.get() == buttonTrue) {
+                                    System.out.println("Usuário clicou em sim.");
+                                } else {
+                                    System.out.println("Usuário clicou em NÃO.");
+                                }
+                            });
+                        }
+
+                        if (comboBoxResult.equals("01-01-2025_24-01-01")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_hyphen);
+                        }
+
+                        if (comboBoxResult.equals("01/01/2025_24:01:01")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_bars);
+                        }
+
+                        if (comboBoxResult.equals("1/janeiro/2025_24:01:01")) {
+                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, date_complete);
+                        }
+
+                        if (renameTask != null) {
+                            renameTask.setOnSucceeded(e -> {
+                                System.out.println("Arquivos renomeados com sucesso!");
+                            });
+
+                            renameTask.setOnFailed(e -> {
+                                System.out.println("Falha na renomeação dos arquivos.");
+                            });
+
+                            new Thread(renameTask).start();
+                        }
+
+                        if (renameTask == null) {
+                            System.out.println("Ola");
+                        }
+
+                    } catch (Exception exception) {
+                        throw new RuntimeException(exception);
+                    }
+
+                    return null;
+                }
+            };
+
+            new Thread(task).start();
+        }
     }
 }

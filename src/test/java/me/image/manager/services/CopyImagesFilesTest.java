@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CopyImagesFilesTest extends ApplicationTest {
     private CopyImageFiles copyImagesFiles;
@@ -26,7 +26,9 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
-     * @throws IOException
+     * <h4>Apaga a pasta de destino após executar os testes</h4>
+     *
+     * @throws IOException Exceção de acesso com fluxo de arquivos
      */
     @BeforeEach
     void setUp() throws IOException {
@@ -49,6 +51,13 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
+     * <h4>Realiza teste de caso perfeito e vaida se o arquivo foi realmente movido</h4>
+     *
+     * <p>
+     * O teste define o local de origem e destino do arquivo de testes image.png, após isso realiza a chamado do método
+     * a ser testado e verifica se o destino que o arquivo foi movido é o que foi pré-definido.
+     * </p>
+     *
      * @throws IOException
      * @throws ExecutionException
      * @throws InterruptedException
@@ -71,7 +80,7 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
-     *
+     * <h4>Testes com parâmetros nulos</h4>
      */
     @Test
     public void testCopyFilesWithNullPaths() {
@@ -85,10 +94,10 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
-     *
+     * <h4>Testes com pasta de de origem invalida</h4>
      */
     @Test
-    public void testAlertOnFileCopyError() {
+    public void testOriginPathInvalid() {
         Path originPath = Paths.get("invalid/path/to/");
         Path destinationPath = Paths.get("destination/path");
         ProgressBar progressBar = new ProgressBar();

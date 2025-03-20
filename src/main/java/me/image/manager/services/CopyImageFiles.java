@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressBar;
-import me.image.manager.components.DefaultAlert;
 
 import java.io.IOException;
 import java.nio.file.FileSystemException;
@@ -15,14 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CopyImageFiles {
-    public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
-        if (originPath == null || destinationPath == null) {
-            Platform.runLater(() -> {
-                new DefaultAlert().alert(Alert.AlertType.ERROR, "Os diretórios não podem ser vazios!", "Os diretórios não podem ser vazios!");
-            });
-            throw new RuntimeException("Os diretórios não podem ser vazios.");
-        }
+    private Alert alert;
 
+    public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
         Platform.runLater(() -> {
             progressBar.progressProperty().unbind();
             progressBar.setProgress(0);
@@ -78,23 +72,35 @@ public class CopyImageFiles {
 
                         Platform.runLater(() -> {
                             if (!notValidExtension.isEmpty()) {
-                                new DefaultAlert().alert(Alert.AlertType.WARNING, "Alguns arquivos não podem ser copiados: \n" + notValidExtension, "Arquivos não válidos");
+                                alert = new Alert(Alert.AlertType.WARNING);
+                                alert.setTitle("Os diretórios podem conter arquivos inválidos!");
+                                alert.setHeaderText("Os diretórios contem arquivos que são incompatíveis com o programa!");
+                                alert.setContentText("Alguns arquivos não podem ser copiados: \n" + notValidExtension);
+                                alert.showAndWait();
+                            }
+
+                            if (!skippedFiles.isEmpty()) {
+                                alert = new Alert(Alert.AlertType.WARNING);
+                                alert.setTitle("Arquivos Ignorados");
+                                alert.setHeaderText("Arquivos Ignorados");
+                                alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(15).toList() + "...");
+                                alert.showAndWait();
                             }
                         });
 
-                        Platform.runLater(() -> {
-                            if (!skippedFiles.isEmpty()) {
-                                new DefaultAlert().alert(Alert.AlertType.WARNING, "Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(15).toList() + "...", "Arquivos Ignorados");
-                            }
-                        });
                         return null;
                     }
                 };
             }
         } catch (IOException exception) {
             Platform.runLater(() -> {
-                new DefaultAlert().alert(Alert.AlertType.ERROR, "Erro ao listar arquivos: " + exception.getMessage(), "Erro ao listar arquivos");
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erro ao listar arquivos");
+                alert.setHeaderText("Erro ao listar arquivos!");
+                alert.setContentText("Erro ao listar arquivos: " + exception.getMessage());
+                alert.showAndWait();
             });
+
             throw new RuntimeException("Erro ao listar arquivos: " + exception.getMessage(), exception);
         }
 
@@ -124,8 +130,11 @@ public class CopyImageFiles {
 
                 } catch (IOException | InterruptedException exception) {
                     Platform.runLater(() -> {
-                        new DefaultAlert()
-                                .alert(Alert.AlertType.ERROR, "Erro ao copiar arquivo: " + exception.getMessage(), "Erro ao copiar!");
+                        alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Erro ao copiar!");
+                        alert.setHeaderText("Erro ao copiar!");
+                        alert.setContentText("Erro ao copiar arquivo: " + exception.getMessage());
+                        alert.showAndWait();
                     });
 
                     throw new RuntimeException("Erro ao copiar arquivo: " + exception.getMessage(), exception);

@@ -54,13 +54,6 @@
             <version>12.3.1</version>
         </dependency>
         <!--Dependências para icons -->
-        <!--Dependência para pegar métadados da imagem-->
-        <dependency>
-            <groupId>com.drewnoakes</groupId>
-            <artifactId>metadata-extractor</artifactId>
-            <version>2.19.0</version>
-        </dependency>
-        <!--Dependência para pegar métadados da imagem-->
         <!--Dependência para testes-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

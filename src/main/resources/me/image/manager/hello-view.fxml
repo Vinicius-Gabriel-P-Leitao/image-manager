@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 <?import java.lang.String?>
-<TabPane id="main-pane" stylesheets="@css/hello-view.css" xmlns="http://javafx.com/javafx/23.0.1"
+<TabPane id="main-pane" stylesheets="@css/hello-view.css" xmlns="http://javafx.com/javafx/11.0.14-internal"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.image.manager.HelloController">
     <!--Tab de copiar arquivos-->
     <Tab id="copy_tab" closable="false" text="Copiar">
@@ -52,8 +52,8 @@
     <Tab id="tab_rename" closable="false" text="Renomear">
         <VBox id="vbox_rename_origin_input" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15">
             <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
-                <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20"
-                           minWidth="400" text="Caminho de origem"/>
+                <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
+                           text="Caminho de origem"/>
                 <Button id="button_directory_origin_rename" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_rename" iconLiteral="zondi-folder-outline"
@@ -65,7 +65,7 @@
                 </VBox.margin>
             </HBox>
             <HBox id="hbox_copy_destination_input" alignment="CENTER" spacing="10">
-                <TextField fx:id="text_field_name_file" maxHeight="25" maxWidth="330" minHeight="20" minWidth="255"
+                <TextField fx:id="text_field_name_file" maxHeight="25" maxWidth="300" minHeight="20" minWidth="228"
                            text="Nome do arquivo"/>
                 <ComboBox fx:id="combo_box_rename" value="formato">
                     <items>

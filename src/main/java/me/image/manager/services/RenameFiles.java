@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -27,8 +28,20 @@ public class RenameFiles {
         return new Task<Void>() {
             final AtomicInteger index = new AtomicInteger(0);
 
+            final long totalFiles;
+
+            {
+                try {
+                    totalFiles = Files.list(originPath)
+                            .filter(Files::isRegularFile)
+                            .count();
+                } catch (IOException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }
+
             @Override
-            protected Void call() throws Exception {
+            protected Void call() throws IOException {
                 Files.list(originPath).filter(Files::isRegularFile).forEach(file -> {
                     Pattern patternRegex = Pattern.compile(regexToName);
                     String fileName = file.getFileName().toString();
@@ -42,6 +55,8 @@ public class RenameFiles {
 
                         String formattedDate = formatedDate(modificationDate, pattern);
                         Matcher matcher = patternRegex.matcher(formattedDate);
+
+                        updateProgress(currentIndex, totalFiles);
 
                         Path parentPath = file.getParent();
                         Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, currentIndex, fileName.substring(fileName.lastIndexOf("."))));
@@ -57,10 +72,11 @@ public class RenameFiles {
                             });
 
                         }
-                    } catch (Exception exception) {
+                    } catch (IOException exception) {
                         throw new RuntimeException(exception);
                     }
                 });
+
                 return null;
             }
         };

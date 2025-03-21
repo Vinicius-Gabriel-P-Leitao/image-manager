@@ -15,7 +15,8 @@
                 <StackPane fx:id="stackpane_origin_copy" minWidth="400" maxWidth="450">
                     <TextField fx:id="text_field_origin_copy" maxHeight="25" maxWidth="400" minHeight="20"
                                minWidth="400"
-                               text="Caminho de origem"/>
+                               promptText="Caminho de origem"
+                    />
                     <ComboBox fx:id="combo_box_origin_copy" visible="false" maxWidth="400"/>
                 </StackPane>
                 <Button id="button_origin_copy" onAction="#onOpenDirectoryChooser" onMouseEntered="#onPointerMouse">
@@ -30,7 +31,7 @@
             </HBox>
             <HBox id="hbox_copy_destination_input" alignment="CENTER" spacing="10">
                 <TextField fx:id="text_field_destination_copy" maxHeight="25" maxWidth="450" minHeight="20"
-                           minWidth="400" text="Caminho de destino"/>
+                           minWidth="400" promptText="Caminho de destino"/>
                 <Button id="button_destination_copy" onAction="#onOpenDirectoryChooser"
                         onMouseEntered="#onPointerMouse">
                     <graphic>
@@ -57,7 +58,7 @@
         <VBox id="vbox_rename_origin_input" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15">
             <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
                 <TextField fx:id="text_field_origin_rename" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
-                           text="Caminho de origem"/>
+                           promptText="Caminho de origem"/>
                 <Button id="button_directory_origin_rename" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_rename" iconLiteral="zondi-folder-outline"
@@ -70,7 +71,7 @@
             </HBox>
             <HBox id="hbox_copy_destination_input" alignment="CENTER" spacing="10">
                 <TextField fx:id="text_field_name_file" maxHeight="25" maxWidth="300" minHeight="20" minWidth="228"
-                           text="Nome do arquivo"/>
+                           promptText="Nome do arquivo"/>
                 <ComboBox fx:id="combo_box_rename" value="formato">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
@@ -99,7 +100,7 @@
         <VBox id="vbox_convert_origin_input" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
             <HBox id="hbox_convert_origin_input" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                 <TextField fx:id="text_field_origin_convert" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
-                           text="Caminho de origem"/>
+                           promptText="Caminho de origem"/>
                 <Button id="button_directory_origin_convert" onAction="#onOpenDirectoryChooser">
                     <graphic>
                         <FontIcon id="icon_button_directory_origin_convert" iconLiteral="zondi-folder-outline"

@@ -136,7 +136,7 @@ public class HelloController {
 
                     System.out.println(destinationPath);
 
-                    if ((originPath == null && originFile == null) || destinationPath.toString().isEmpty() || !Files.exists(destinationPath)) {
+                    if ((originPath == null && originFile == null) || destinationPath.toString().isEmpty()) {
                         Platform.runLater(() -> {
                             alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Erro ao listar arquivos/pastas");

@@ -64,7 +64,7 @@ class CopyImagesFilesTest extends ApplicationTest {
      */
     @Test
     public void testCopyFilesWithValidPaths() throws IOException, ExecutionException, InterruptedException {
-        Path originPath = Paths.get("src/test/resources/origin/image.png");
+        Path originPath = Paths.get("src/test/resources/origin/");
         Path destinationPath = Paths.get("src/test/resources/destination");
         ProgressBar progressBar = new ProgressBar();
 

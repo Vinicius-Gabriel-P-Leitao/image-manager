@@ -11,6 +11,7 @@ import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,11 +25,15 @@ public class RenameFiles {
 
     public Task<Void> createTaskRenameFiles(Path originPath, String nameFile, String regexToName, String pattern) {
         return new Task<Void>() {
+            final AtomicInteger index = new AtomicInteger(0);
+
             @Override
             protected Void call() throws Exception {
                 Files.list(originPath).filter(Files::isRegularFile).forEach(file -> {
                     Pattern patternRegex = Pattern.compile(regexToName);
                     String fileName = file.getFileName().toString();
+
+                    int currentIndex = index.getAndIncrement();
 
                     try {
                         BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
@@ -36,11 +41,10 @@ public class RenameFiles {
                         Date modificationDate = new Date(fileTime.toMillis());
 
                         String formattedDate = formatedDate(modificationDate, pattern);
-                        System.out.println(formattedDate);
                         Matcher matcher = patternRegex.matcher(formattedDate);
 
                         Path parentPath = file.getParent();
-                        Path newFileName = Path.of(String.valueOf(parentPath), nameFile + "_" + formattedDate + fileName.substring(fileName.lastIndexOf(".")));
+                        Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, currentIndex, fileName.substring(fileName.lastIndexOf("."))));
                         if (matcher.matches()) {
                             Files.move(file, newFileName);
                         } else {

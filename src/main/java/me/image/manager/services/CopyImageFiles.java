@@ -36,10 +36,6 @@ public class CopyImageFiles {
                         List<String> skippedFiles = new ArrayList<>();
                         List<String> notValidExtension = new ArrayList<>();
 
-                        Files.list(destinationPath).forEach(sourceFile -> {
-                            skippedFiles.add(sourceFile.getFileName().toString());
-                        });
-
                         try (var stream = Files.list(originPath)) {
                             List<Path> filesToCopy = stream.filter(sourceFile -> {
                                 String fileName = sourceFile.getFileName().toString();
@@ -83,7 +79,7 @@ public class CopyImageFiles {
                                 alert = new Alert(Alert.AlertType.WARNING);
                                 alert.setTitle("Arquivos Ignorados");
                                 alert.setHeaderText("Arquivos Ignorados");
-                                alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(15).toList() + "...");
+                                alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(5).toList() + "...");
                                 alert.showAndWait();
                             }
                         });

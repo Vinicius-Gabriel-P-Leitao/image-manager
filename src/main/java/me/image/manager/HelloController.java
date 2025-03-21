@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import me.image.manager.services.CopyImageFiles;
@@ -23,20 +24,34 @@ public class HelloController {
     private static final String DATE_HYPHEN = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\-(0[0-9]|[1-5][0-9])\\-(0[0-9]|[1-5][0-9])$";
     private static final String DATE_BARS = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\_(0[0-9]|1[0-2])\\_\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
     private static final String DATE_COMPLETE = "^([0-9]|0[0-9]|1[0-9]|2[0-9]|3[01])\\_([A-Za-zÀ-ú]+)\\_(\\d{4})\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
-    // Variáveis de ui
+    // Copy UI
     public TextField text_field_origin_copy;
     public TextField text_field_destination_copy;
-    public TextField text_field_origin_rename;
-    public TextField text_field_origin_convert;
-    public TextField text_field_name_file;
     public ProgressBar progressbar_copy;
+    public ComboBox combo_box_origin_copy;
+    public StackPane stackpane_origin_copy;
+    // Rename UI
+    public TextField text_field_origin_rename;
+    public TextField text_field_name_file;
     public ProgressBar progressbar_rename;
     public ComboBox combo_box_rename;
+    // Convert UI
+    public TextField text_field_origin_convert;
+    // Variáveis de ui
     private Stage stage;
     private Alert alert;
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    @FXML
+    private void onPointerMouse(MouseEvent event) {
+        Object elementActionThisEvent = event.getSource();
+
+        if (elementActionThisEvent instanceof Button button) {
+            button.setCursor(Cursor.HAND);
+        }
     }
 
     @FXML
@@ -47,6 +62,31 @@ public class HelloController {
 
         File path = pathChooser.showDialog(stage);
         if (path == null) throw new RuntimeException("A pasta não foi selecionada!");
+
+        if (event.getSource() instanceof Button button) {
+            String buttonId = button.getId();
+
+            if ("button_origin_copy".equals(buttonId)) {
+                File[] listFiles = path.listFiles();
+
+                if (listFiles != null) {
+                    combo_box_origin_copy.getItems().clear();
+                    combo_box_origin_copy.setValue(path);
+                    combo_box_origin_copy.getItems().add(path);
+
+                    for (File file : listFiles) {
+                        String displayName = file.isDirectory() ? "Pasta: " + file.getAbsolutePath() : "Arquivo: " + file.getAbsolutePath();
+                        combo_box_origin_copy.getItems().add(displayName);
+                    }
+
+                    text_field_origin_copy.setVisible(false);
+                    combo_box_origin_copy.setVisible(true);
+
+                    stackpane_origin_copy.getChildren().clear();
+                    stackpane_origin_copy.getChildren().add(combo_box_origin_copy);
+                }
+            }
+        }
 
         Object elementActionThisEvent = event.getSource();
         if (elementActionThisEvent instanceof Button button) {
@@ -66,42 +106,55 @@ public class HelloController {
     }
 
     @FXML
-    private void onPointerMouse(MouseEvent event) {
-        Object elementActionThisEvent = event.getSource();
-
-        if (elementActionThisEvent instanceof Button button) {
-            button.setCursor(Cursor.HAND);
-        }
-    }
-
-    @FXML
     private void onCopyFiles(ActionEvent event) {
         if (event.getSource() instanceof Button) {
             Task<Void> task = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
-                    Path originPath = Path.of(text_field_origin_copy.getText().trim());
+                    String comboBoxSelectValue = combo_box_origin_copy.getSelectionModel().getSelectedItem() != null ? combo_box_origin_copy.getSelectionModel().getSelectedItem().toString() : "";
+
+                    Path originFile;
+                    Path originPath;
                     Path destinationPath = Path.of(text_field_destination_copy.getText().trim());
 
+                    // Caso o combobox tenho um valor ele anula originPath e inicia o valor do originFile e no else faz ao contrario
+                    if (comboBoxSelectValue != null && !comboBoxSelectValue.isEmpty() && combo_box_origin_copy.isVisible()) {
+                        originPath = null;
 
-                    if (!Files.exists(Path.of(text_field_origin_copy.getText()))) {
+                        comboBoxSelectValue = comboBoxSelectValue.replace("Pasta: ", "").replace("Arquivo: ", "");
+                        originFile = Path.of(comboBoxSelectValue);
+                    } else {
+                        originFile = null;
+
+                        String textFromTextField = text_field_origin_copy.getText().trim();
+                        if (!textFromTextField.isEmpty()) {
+                            originPath = Path.of(textFromTextField);
+                        } else {
+                            originPath = null;
+                        }
+                    }
+
+                    System.out.println(destinationPath);
+
+                    if ((originPath == null && originFile == null) || destinationPath.toString().isEmpty() || !Files.exists(destinationPath)) {
                         Platform.runLater(() -> {
                             alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Pasta de origem incorreta!");
-                            alert.setHeaderText("Pasta de origem incorreta!");
-                            alert.setContentText(String.format("A origem não existe: %s", text_field_origin_copy.getText()));
+                            alert.setTitle("Erro ao listar arquivos/pastas");
+                            alert.setHeaderText("Erro ao listar arquivos/pastas!");
+
+                            String origemMensagem = (originPath != null || originFile != null) ? (originPath != null ? originPath.toString() : originFile.toString()) : "Nenhum caminho de origem fornecido";
+                            String destinoMensagem = Files.exists(destinationPath) ? destinationPath.toString() : "Caminho de destino inválido";
+
+                            alert.setContentText(String.format("Os caminhos de diretório ou arquivo são inválidos: \nOrigem: %s \nDestino: %s", origemMensagem, destinoMensagem));
                             alert.showAndWait();
                         });
 
-                        throw new RuntimeException(String.format("A pasta de origem não existe: %s", text_field_origin_copy.getText()));
+                        throw new RuntimeException("Os caminhos de diretório ou arquivo estão nulos ou o destino não existe");
                     }
 
-                    File[] files = originPath.toFile().listFiles();
-                    if (files == null) {
-                        throw new RuntimeException("Não foi possível acessar os arquivos na pasta de origem.");
-                    }
+                    Task<Void> copyTask;
 
-                    Task<Void> copyTask = new CopyImageFiles().createTaskCopyFiles(originPath, destinationPath, progressbar_copy);
+                    copyTask = new CopyImageFiles().createTaskCopyFiles(Objects.requireNonNullElse(originFile, originPath), destinationPath, progressbar_copy);
 
                     if (copyTask != null) {
                         Platform.runLater(() -> {
@@ -128,7 +181,7 @@ public class HelloController {
                                 alert = new Alert(Alert.AlertType.ERROR);
                                 alert.setTitle("Ocorreu um erro na cópia dos arquivos.");
                                 alert.setHeaderText("Ocorreu um erro na cópia dos arquivos.");
-                                alert.setContentText("Erro na cópiar: " + exception.getMessage());
+                                alert.setContentText("Erro na cópiar: " + exception.getCause());
                                 alert.showAndWait();
 
                                 progressbar_copy.progressProperty().unbind();
@@ -160,7 +213,9 @@ public class HelloController {
                     String comboBoxResult = combo_box_rename.getValue().toString();
 
                     try {
-                        Task<Void> renameTask = null;
+                        var ref = new Object() {
+                            Task<Void> renameTask = null;
+                        };
 
                         if (Objects.equals(comboBoxResult, "formato")) {
                             Platform.runLater(() -> {
@@ -173,19 +228,23 @@ public class HelloController {
                         }
 
                         if (comboBoxResult.equals("dd-MM-yyyy_HH-mm-ss")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_HYPHEN, comboBoxResult);
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_HYPHEN, comboBoxResult);
                         }
 
                         if (comboBoxResult.equals("dd_MM_yyyy_HH_mm_ss")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxResult);
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxResult);
                         }
 
                         if (comboBoxResult.equals("dd_MMMM_yyyy_HH_mm_ss")) {
-                            renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_COMPLETE, comboBoxResult);
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_COMPLETE, comboBoxResult);
                         }
 
-                        if (renameTask != null) {
-                            renameTask.setOnSucceeded(workerStateEvent -> {
+                        if (ref.renameTask != null) {
+                            Platform.runLater(() -> {
+                                progressbar_rename.progressProperty().bind(ref.renameTask.progressProperty());
+                            });
+
+                            ref.renameTask.setOnSucceeded(workerStateEvent -> {
                                 alert = new Alert(Alert.AlertType.INFORMATION);
                                 alert.setTitle("Formado de nome");
                                 alert.setHeaderText("Arquivos renomeados com sucesso!");
@@ -196,7 +255,7 @@ public class HelloController {
                                 progressbar_rename.setProgress(0);
                             });
 
-                            renameTask.setOnFailed(workerStateEvent -> {
+                            ref.renameTask.setOnFailed(workerStateEvent -> {
                                 Throwable exception = workerStateEvent.getSource().getException();
 
                                 alert = new Alert(Alert.AlertType.ERROR);
@@ -208,7 +267,7 @@ public class HelloController {
                                 progressbar_rename.setProgress(0);
                             });
 
-                            Thread copyThread = new Thread(renameTask);
+                            Thread copyThread = new Thread(ref.renameTask);
                             copyThread.setDaemon(true);
                             copyThread.start();
                         }

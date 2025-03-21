@@ -12,8 +12,12 @@
     <Tab id="copy_tab" closable="false" text="Copiar">
         <VBox id="vbox_copy_origin_input" alignment="CENTER" spacing="15">
             <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
-                <TextField fx:id="text_field_origin_copy" maxHeight="25" maxWidth="450" minHeight="20" minWidth="400"
-                           text="Caminho de origem"/>
+                <StackPane fx:id="stackpane_origin_copy" minWidth="400" maxWidth="450">
+                    <TextField fx:id="text_field_origin_copy" maxHeight="25" maxWidth="400" minHeight="20"
+                               minWidth="400"
+                               text="Caminho de origem"/>
+                    <ComboBox fx:id="combo_box_origin_copy" visible="false" maxWidth="400"/>
+                </StackPane>
                 <Button id="button_origin_copy" onAction="#onOpenDirectoryChooser" onMouseEntered="#onPointerMouse">
                     <graphic>
                         <FontIcon id="button_origin_copy_icon" iconLiteral="zondi-folder-outline"

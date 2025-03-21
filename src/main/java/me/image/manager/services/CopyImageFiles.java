@@ -17,24 +17,34 @@ public class CopyImageFiles {
     private Alert alert;
 
     public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
-        Platform.runLater(() -> {
-            progressBar.progressProperty().unbind();
-            progressBar.setProgress(0);
-        });
-
         try {
-            if (!Files.exists(destinationPath)) Files.createDirectories(destinationPath);
+            if (!Files.exists(destinationPath)) {
+                Files.createDirectories(destinationPath);
+            } else if (!Files.isDirectory(destinationPath)) {
 
-            if (Files.isRegularFile(originPath)) {
-                copySingleFile(originPath, destinationPath);
+                Path parentDir = destinationPath.getParent();
+                if (parentDir != null && !Files.exists(parentDir)) {
+                    Files.createDirectories(parentDir);
+                }
 
-            } else if (Files.isDirectory(originPath)) {
-                return new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
-                        List<String> skippedFiles = new ArrayList<>();
-                        List<String> notValidExtension = new ArrayList<>();
+                destinationPath = destinationPath.resolveSibling(destinationPath.getFileName() + "_folder");
+                Files.createDirectories(destinationPath);
+            }
+
+            Path finalDestinationPath = destinationPath;
+
+            return new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
+                    List<String> skippedFiles = new ArrayList<>();
+                    List<String> notValidExtension = new ArrayList<>();
+
+                    if (Files.isRegularFile(originPath)) {
+                        Path destinationFile = finalDestinationPath.resolve(originPath.getFileName());
+                        copySingleFile(originPath, destinationFile);
+
+                    } else if (Files.isDirectory(originPath)) {
 
                         try (var stream = Files.list(originPath)) {
                             List<Path> filesToCopy = stream.filter(sourceFile -> {
@@ -52,7 +62,7 @@ public class CopyImageFiles {
                             int copiedFiles = 0;
 
                             for (Path sourceFile : filesToCopy) {
-                                Path destinationFile = destinationPath.resolve(sourceFile.getFileName());
+                                Path destinationFile = finalDestinationPath.resolve(sourceFile.getFileName());
 
                                 if (Files.exists(destinationFile)) {
                                     skippedFiles.add(sourceFile.getFileName().toString());
@@ -65,29 +75,29 @@ public class CopyImageFiles {
                                 updateProgress(copiedFiles, totalFiles);
                             }
                         }
-
-                        Platform.runLater(() -> {
-                            if (!notValidExtension.isEmpty()) {
-                                alert = new Alert(Alert.AlertType.WARNING);
-                                alert.setTitle("Os diretórios podem conter arquivos inválidos!");
-                                alert.setHeaderText("Os diretórios contem arquivos que são incompatíveis com o programa!");
-                                alert.setContentText("Alguns arquivos não podem ser copiados: \n" + notValidExtension);
-                                alert.showAndWait();
-                            }
-
-                            if (!skippedFiles.isEmpty()) {
-                                alert = new Alert(Alert.AlertType.WARNING);
-                                alert.setTitle("Arquivos Ignorados");
-                                alert.setHeaderText("Arquivos Ignorados");
-                                alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(5).toList() + "...");
-                                alert.showAndWait();
-                            }
-                        });
-
-                        return null;
                     }
-                };
-            }
+
+                    Platform.runLater(() -> {
+                        if (!notValidExtension.isEmpty()) {
+                            alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Os diretórios podem conter arquivos inválidos!");
+                            alert.setHeaderText("Os diretórios contem arquivos que são incompatíveis com o programa!");
+                            alert.setContentText("Alguns arquivos não podem ser copiados: \n" + notValidExtension);
+                            alert.showAndWait();
+                        }
+
+                        if (!skippedFiles.isEmpty()) {
+                            alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Arquivos Ignorados");
+                            alert.setHeaderText("Arquivos Ignorados");
+                            alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(5).toList() + "...");
+                            alert.showAndWait();
+                        }
+                    });
+
+                    return null;
+                }
+            };
         } catch (IOException exception) {
             Platform.runLater(() -> {
                 alert = new Alert(Alert.AlertType.ERROR);
@@ -99,8 +109,6 @@ public class CopyImageFiles {
 
             throw new RuntimeException("Erro ao listar arquivos: " + exception.getMessage(), exception);
         }
-
-        return null;
     }
 
     /**
@@ -136,6 +144,7 @@ public class CopyImageFiles {
                     throw new RuntimeException("Erro ao copiar arquivo: " + exception.getMessage(), exception);
                 }
             } else {
+                ioException.printStackTrace();
                 throw ioException;
             }
         }

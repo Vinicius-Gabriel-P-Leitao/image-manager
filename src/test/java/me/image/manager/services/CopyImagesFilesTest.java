@@ -64,12 +64,12 @@ class CopyImagesFilesTest extends ApplicationTest {
      */
     @Test
     public void testCopyFilesWithValidPaths() throws IOException, ExecutionException, InterruptedException {
-        Path originPath = Paths.get("src/test/resources/origin/image.png");
+        Path originPath = Paths.get("src/test/resources/origin/");
         Path destinationPath = Paths.get("src/test/resources/destination");
         ProgressBar progressBar = new ProgressBar();
 
         Path destinationFilePath = destinationPath.resolve("image.png");
-        copyImagesFiles.createTaskCopyFiles(originPath, destinationFilePath, progressBar);
+        copyImagesFiles.createTaskCopyFiles(originPath, destinationFilePath);
 
 
         assertTrue(Files.exists(destinationFilePath), "O arquivo copiado não foi encontrado.");
@@ -89,7 +89,7 @@ class CopyImagesFilesTest extends ApplicationTest {
         ProgressBar progressBar = new ProgressBar();
 
         try {
-            copyImagesFiles.createTaskCopyFiles(originPath, destinationPath, progressBar);
+            copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);
         } catch (RuntimeException exception) {
             assert exception.getMessage().contains("Erro ao listar arquivos");
         }

@@ -22,6 +22,11 @@
     -fx-text-fill: #ffffff;
 }
 
+.combo-box > * {
+    -fx-background-color: #ff0000;
+    -fx-text-fill: #ffffff;
+}
+
 .font-icon {
-        -fx-icon-color: white;
+    -fx-icon-color: white;
 }

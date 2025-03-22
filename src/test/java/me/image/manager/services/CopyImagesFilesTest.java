@@ -1,7 +1,6 @@
 package me.image.manager.services;
 
-import javafx.application.Platform;
-import javafx.scene.control.ProgressBar;
+import javafx.concurrent.Task;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CopyImagesFilesTest extends ApplicationTest {
@@ -45,7 +45,6 @@ class CopyImagesFilesTest extends ApplicationTest {
                 });
             }
 
-            // Garante que o próprio diretório seja deletado
             Files.deleteIfExists(directory);
         }
     }
@@ -63,20 +62,35 @@ class CopyImagesFilesTest extends ApplicationTest {
      * @throws InterruptedException
      */
     @Test
-    public void testCopyFilesWithValidPaths() throws IOException, ExecutionException, InterruptedException {
-        Path originPath = Paths.get("src/test/resources/origin/");
+    public void testCopyFilesWithValidFile() throws IOException, ExecutionException, InterruptedException {
+        Path originPath = Paths.get("src/test/resources/origin/image.png");
         Path destinationPath = Paths.get("src/test/resources/destination");
-        ProgressBar progressBar = new ProgressBar();
 
-        Path destinationFilePath = destinationPath.resolve("image.png");
-        copyImagesFiles.createTaskCopyFiles(originPath, destinationFilePath);
+        Task<Void> copyTask = copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);
 
+        Thread threadCopy = new Thread(copyTask);
+        threadCopy.start();
 
-        assertTrue(Files.exists(destinationFilePath), "O arquivo copiado não foi encontrado.");
         assertTrue(Files.exists(destinationPath), "A pasta de destino não foi encontrada.");
+        assertTrue(Files.exists(originPath), "O arquivo copiado não foi encontrado.");
+    }
 
-        Platform.runLater(() -> progressBar.setProgress(0.5));
-        progressBar.getProgress();
+    /**
+     * @throws IOException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    @Test
+    public void testCopyFilesWithInvalidFile() throws IOException, ExecutionException, InterruptedException {
+        Path originPath = Paths.get("src/test/resources/origin/invalid-file.txt");
+        Path destinationPath = Paths.get("src/test/resources/destination");
+
+        Task<Void> copyTask = copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);
+
+        Thread threadCopy = new Thread(copyTask);
+        threadCopy.start();
+
+        assertFalse(Files.exists(Path.of(destinationPath + "/invalid-file.txt")), "O arquivo copiado não foi encontrado.");
     }
 
     /**
@@ -86,7 +100,6 @@ class CopyImagesFilesTest extends ApplicationTest {
     public void testOriginPathInvalid() {
         Path originPath = Paths.get("invalid/path/to/");
         Path destinationPath = Paths.get("destination/path");
-        ProgressBar progressBar = new ProgressBar();
 
         try {
             copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);

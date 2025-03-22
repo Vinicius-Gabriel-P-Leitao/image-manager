@@ -10,6 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import me.image.manager.services.ConvertImageFiles;
 import me.image.manager.services.CopyImageFiles;
 import me.image.manager.services.RenameFiles;
 
@@ -37,6 +38,8 @@ public class HelloController {
     public ComboBox combo_box_rename;
     // Convert UI
     public TextField text_field_origin_convert;
+    public ProgressBar progressbar_convert;
+    public ComboBox combo_box_convert;
     // Variáveis de ui
     private Stage stage;
     private Alert alert;
@@ -134,8 +137,6 @@ public class HelloController {
                         }
                     }
 
-                    System.out.println(destinationPath);
-
                     if ((originPath == null && originFile == null) || destinationPath.toString().isEmpty()) {
                         Platform.runLater(() -> {
                             alert = new Alert(Alert.AlertType.ERROR);
@@ -154,7 +155,7 @@ public class HelloController {
 
                     Task<Void> copyTask;
 
-                    copyTask = new CopyImageFiles().createTaskCopyFiles(Objects.requireNonNullElse(originFile, originPath), destinationPath, progressbar_copy);
+                    copyTask = new CopyImageFiles().createTaskCopyFiles(Objects.requireNonNullElse(originFile, originPath), destinationPath);
 
                     if (copyTask != null) {
                         Platform.runLater(() -> {
@@ -210,33 +211,45 @@ public class HelloController {
                 protected Void call() throws Exception {
                     Path originPath = Path.of(text_field_origin_rename.getText().trim());
                     String nameFile = text_field_name_file.getText().trim();
-                    String comboBoxResult = combo_box_rename.getValue().toString();
+                    String comboBoxSelectValue = combo_box_rename.getValue().toString();
+
+                    if (!Files.exists(originPath) || nameFile.isEmpty()) {
+                        Platform.runLater(() -> {
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Erro ao receber dados");
+                            alert.setHeaderText("Erro ao receber dados!");
+                            alert.setContentText(String.format("Os caminhos de diretório ou nome do arquivo são invalido:  \nOrigem: %s \nNome: %s", originPath, nameFile));
+                            alert.showAndWait();
+                        });
+
+                        throw new RuntimeException(String.format("Os caminhos de diretório ou nome do arquivo são invalido:  \nOrigem: %s \nNome: %s", originPath, nameFile));
+                    }
 
                     try {
                         var ref = new Object() {
                             Task<Void> renameTask = null;
                         };
 
-                        if (Objects.equals(comboBoxResult, "formato")) {
+                        if (Objects.equals(comboBoxSelectValue, "formato")) {
                             Platform.runLater(() -> {
                                 alert = new Alert(Alert.AlertType.ERROR);
-                                alert.setTitle("Formado de nome");
+                                alert.setTitle("Formato de nome");
                                 alert.setHeaderText("Nenhum formato para foi escolhido!");
                                 alert.setContentText("Não é possível continuar a formatação de nome sem o formato definido!");
                                 alert.showAndWait();
                             });
                         }
 
-                        if (comboBoxResult.equals("dd-MM-yyyy_HH-mm-ss")) {
-                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_HYPHEN, comboBoxResult);
+                        if (comboBoxSelectValue.equals("dd-MM-yyyy_HH-mm-ss")) {
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_HYPHEN, comboBoxSelectValue);
                         }
 
-                        if (comboBoxResult.equals("dd_MM_yyyy_HH_mm_ss")) {
-                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxResult);
+                        if (comboBoxSelectValue.equals("dd_MM_yyyy_HH_mm_ss")) {
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxSelectValue);
                         }
 
-                        if (comboBoxResult.equals("dd_MMMM_yyyy_HH_mm_ss")) {
-                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_COMPLETE, comboBoxResult);
+                        if (comboBoxSelectValue.equals("dd_MMMM_yyyy_HH_mm_ss")) {
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_COMPLETE, comboBoxSelectValue);
                         }
 
                         if (ref.renameTask != null) {
@@ -246,7 +259,7 @@ public class HelloController {
 
                             ref.renameTask.setOnSucceeded(workerStateEvent -> {
                                 alert = new Alert(Alert.AlertType.INFORMATION);
-                                alert.setTitle("Formado de nome");
+                                alert.setTitle("Formato de nome");
                                 alert.setHeaderText("Arquivos renomeados com sucesso!");
                                 alert.setContentText("Os arquivos do diretório foram renomeados com sucesso: " + originPath);
                                 alert.showAndWait();
@@ -267,13 +280,64 @@ public class HelloController {
                                 progressbar_rename.setProgress(0);
                             });
 
-                            Thread copyThread = new Thread(ref.renameTask);
-                            copyThread.setDaemon(true);
-                            copyThread.start();
+                            Thread renameThread = new Thread(ref.renameTask);
+                            renameThread.setDaemon(true);
+                            renameThread.start();
                         }
                     } catch (Exception exception) {
                         throw new RuntimeException(exception);
                     }
+
+                    return null;
+                }
+            };
+
+            new Thread(task).start();
+        }
+    }
+
+    public void onConvertFiles(ActionEvent event) {
+        if (event.getSource() instanceof Button) {
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    Path originPath = Path.of(text_field_origin_convert.getText().trim());
+                    String comboBoxSelectValue = combo_box_convert.getValue().toString();
+
+                    Task<Void> convertTask = new ConvertImageFiles().createTaskConvertFiles(originPath, comboBoxSelectValue);
+
+                    if (convertTask != null) {
+                        Platform.runLater(() -> {
+                            progressbar_convert.progressProperty().bind(convertTask.progressProperty());
+                        });
+
+                        convertTask.setOnSucceeded(workerStateEvent -> {
+                            alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Conversão de arquivos");
+                            alert.setHeaderText("Conversão de arquivos com sucesso!");
+                            alert.setContentText("Os arquivos do diretório foram convertidos com sucesso: " + originPath);
+                            alert.showAndWait();
+
+                            progressbar_convert.progressProperty().unbind();
+                            progressbar_convert.setProgress(0);
+                        });
+
+                        convertTask.setOnFailed(workerStateEvent -> {
+                            Throwable exception = workerStateEvent.getSource().getException();
+
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Falha na converter os arquivos.");
+                            alert.setHeaderText("Falha na converter os arquivos.");
+                            alert.setContentText("Não foi possível continuar a conversão de arquivos devido a um erro: " + exception.getMessage());
+
+                            progressbar_convert.progressProperty().unbind();
+                            progressbar_convert.setProgress(0);
+                        });
+                    }
+
+                    Thread convertThread = new Thread(convertTask);
+                    convertThread.setDaemon(true);
+                    convertThread.start();
 
                     return null;
                 }

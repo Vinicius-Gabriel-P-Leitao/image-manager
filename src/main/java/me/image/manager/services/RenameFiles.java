@@ -47,7 +47,8 @@ public class RenameFiles {
                     }).toList();
 
                     int totalFiles = filesToRename.size();
-                    int copiedFiles = 0;
+                    int renamedFilesToProgress = 0;
+                    int renamedFiles= 0;
 
                     for (Path sourceFile : filesToRename) {
                         BasicFileAttributes attributes = Files.readAttributes(sourceFile, BasicFileAttributes.class);
@@ -57,11 +58,14 @@ public class RenameFiles {
                         String formattedDate = formatedDate(modificationDate, pattern);
                         Matcher matcher = patternRegex.matcher(formattedDate);
 
-                        copiedFiles++;
-                        updateProgress(copiedFiles, totalFiles);
-
                         Path parentPath = sourceFile.getParent();
-                        Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, copiedFiles, sourceFile.toString().substring(sourceFile.toString().lastIndexOf("."))));
+                        Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, renamedFiles++, sourceFile.toString().substring(sourceFile.toString().lastIndexOf("."))));
+
+                        if (!newFileName.equals(sourceFile)) {
+                            renamedFilesToProgress++;
+                            updateProgress(renamedFilesToProgress, totalFiles);
+                        }
+
                         if (matcher.matches()) {
                             Files.move(sourceFile, newFileName);
                         } else {

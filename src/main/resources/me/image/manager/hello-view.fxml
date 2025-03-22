@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.collections.FXCollections?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-<?import java.lang.String?>
+<?import java.lang.*?>
 <TabPane id="main-pane" stylesheets="@css/hello-view.css" xmlns="http://javafx.com/javafx/11.0.14-internal"
          xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.image.manager.HelloController">
     <!--Tab de copiar arquivos-->
@@ -44,7 +44,7 @@
                 <ProgressBar fx:id="progressbar_copy" minHeight="20.0" minWidth="200.0" progress="0.0"/>
                 <Button id="button_copy" onAction="#onCopyFiles" onMouseEntered="#onPointerMouse" text="Copiar">
                     <graphic>
-                        <FontIcon id="button_copy_icon" iconLiteral="zondi-arrow-outline-up" styleClass="font-icon"/>
+                        <FontIcon id="button_copy_icon" iconLiteral="zondi-edit-copy" styleClass="font-icon"/>
                     </graphic>
                 </Button>
                 <padding>
@@ -86,7 +86,7 @@
                 <ProgressBar fx:id="progressbar_rename" minHeight="20.0" minWidth="200.0" progress="0.0"/>
                 <Button id="button_rename" onAction="#onRenameFiles" onMouseEntered="#onPointerMouse" text="Renomear">
                     <graphic>
-                        <FontIcon id="button_rename_icon" iconLiteral="zondi-edit-copy" styleClass="font-icon"/>
+                        <FontIcon id="button_rename_icon" iconLiteral="zondi-edit-pencil" styleClass="font-icon"/>
                     </graphic>
                 </Button>
                 <padding>
@@ -108,6 +108,31 @@
                     </graphic>
                 </Button>
             </HBox>
+            <HBox id="hbox_convert_combobox" alignment="CENTER" spacing="10">
+                <ComboBox fx:id="combo_box_convert" value=".png">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value=".png"/>
+                            <String fx:value=".jpg"/>
+                            <String fx:value=".jpeg"/>
+                            <String fx:value=".tiff"/>
+                            <String fx:value=".webp"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </HBox>
+            <VBox id="hbox_convert_button_progress_bar" alignment="CENTER" spacing="10">
+                <ProgressBar fx:id="progressbar_convert" minHeight="20.0" minWidth="200.0" progress="0.0"/>
+                <Button id="button_convert" onAction="#onConvertFiles" onMouseEntered="#onPointerMouse"
+                        text="Converter">
+                    <graphic>
+                        <FontIcon id="button_convert_icon" iconLiteral="zondi-refresh" styleClass="font-icon"/>
+                    </graphic>
+                </Button>
+                <padding>
+                    <Insets top="10.0"/>
+                </padding>
+            </VBox>
         </VBox>
     </Tab>
 </TabPane>

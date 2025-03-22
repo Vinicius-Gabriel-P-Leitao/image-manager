@@ -3,7 +3,6 @@ package me.image.manager.services;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ProgressBar;
 
 import java.io.IOException;
 import java.nio.file.FileSystemException;

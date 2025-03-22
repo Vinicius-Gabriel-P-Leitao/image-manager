@@ -56,13 +56,9 @@ class CopyImagesFilesTest extends ApplicationTest {
      * O teste define o local de origem e destino do arquivo de testes image.png, após isso realiza a chamado do método
      * a ser testado e verifica se o destino que o arquivo foi movido é o que foi pré-definido.
      * </p>
-     *
-     * @throws IOException
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     @Test
-    public void testCopyFilesWithValidFile() throws IOException, ExecutionException, InterruptedException {
+    public void testCopyFilesWithValidFile() {
         Path originPath = Paths.get("src/test/resources/origin/image.png");
         Path destinationPath = Paths.get("src/test/resources/destination");
 
@@ -76,9 +72,12 @@ class CopyImagesFilesTest extends ApplicationTest {
     }
 
     /**
-     * @throws IOException
-     * @throws ExecutionException
-     * @throws InterruptedException
+     * <h4>Realiza teste de caso com arquivo invalido</h4>
+     *
+     * <p>
+     * O teste define o local de origem e destino do arquivo de testes invalid-file.txt, após isso realiza a chamado do método
+     * a ser testado e verifica se o destino que o arquivo foi movido é o que foi pré-definido esperando que retorne falso.
+     * </p>
      */
     @Test
     public void testCopyFilesWithInvalidFile() throws IOException, ExecutionException, InterruptedException {

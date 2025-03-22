@@ -10,9 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,42 +27,43 @@ public class RenameFiles {
 
     public Task<Void> createTaskRenameFiles(Path originPath, String nameFile, String regexToName, String pattern) {
         return new Task<Void>() {
-            final AtomicInteger index = new AtomicInteger(0);
-
-            final long totalFiles;
-
-            {
-                try {
-                    totalFiles = Files.list(originPath)
-                            .filter(Files::isRegularFile)
-                            .count();
-                } catch (IOException exception) {
-                    throw new RuntimeException(exception);
-                }
-            }
-
             @Override
             protected Void call() throws IOException {
-                Files.list(originPath).filter(Files::isRegularFile).forEach(file -> {
-                    Pattern patternRegex = Pattern.compile(regexToName);
-                    String fileName = file.getFileName().toString();
+                List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
+                List<String> notValidExtension = new ArrayList<>();
 
-                    int currentIndex = index.getAndIncrement();
+                Pattern patternRegex = Pattern.compile(regexToName);
 
-                    try {
-                        BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+                try (var stream = Files.list(originPath)) {
+                    List<Path> filesToRename = stream.filter(sourceFile -> {
+                        String fileName = sourceFile.getFileName().toString();
+                        boolean isValidFile = extensions.stream().anyMatch(fileName::endsWith);
+
+                        if (!isValidFile) {
+                            notValidExtension.add(fileName);
+                        }
+
+                        return isValidFile;
+                    }).toList();
+
+                    int totalFiles = filesToRename.size();
+                    int copiedFiles = 0;
+
+                    for (Path sourceFile : filesToRename) {
+                        BasicFileAttributes attributes = Files.readAttributes(sourceFile, BasicFileAttributes.class);
                         FileTime fileTime = attributes.lastModifiedTime();
                         Date modificationDate = new Date(fileTime.toMillis());
 
                         String formattedDate = formatedDate(modificationDate, pattern);
                         Matcher matcher = patternRegex.matcher(formattedDate);
 
-                        updateProgress(currentIndex, totalFiles);
+                        copiedFiles++;
+                        updateProgress(copiedFiles, totalFiles);
 
-                        Path parentPath = file.getParent();
-                        Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, currentIndex, fileName.substring(fileName.lastIndexOf("."))));
+                        Path parentPath = sourceFile.getParent();
+                        Path newFileName = Path.of(String.format("%s/%s_%s_(%d)%s", parentPath, nameFile, formattedDate, copiedFiles, sourceFile.toString().substring(sourceFile.toString().lastIndexOf("."))));
                         if (matcher.matches()) {
-                            Files.move(file, newFileName);
+                            Files.move(sourceFile, newFileName);
                         } else {
                             Platform.runLater(() -> {
                                 alert = new Alert(Alert.AlertType.ERROR);
@@ -72,10 +74,10 @@ public class RenameFiles {
                             });
 
                         }
-                    } catch (IOException exception) {
-                        throw new RuntimeException(exception);
                     }
-                });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
                 return null;
             }

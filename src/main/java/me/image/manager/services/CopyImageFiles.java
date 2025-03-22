@@ -16,7 +16,7 @@ import java.util.List;
 public class CopyImageFiles {
     private Alert alert;
 
-    public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath, ProgressBar progressBar) {
+    public Task<Void> createTaskCopyFiles(Path originPath, Path destinationPath) {
         try {
             if (!Files.exists(destinationPath)) {
                 Files.createDirectories(destinationPath);

@@ -37,8 +37,8 @@ public class CopyImageFiles {
                 @Override
                 protected Void call() throws Exception {
                     List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
-                    List<String> skippedFiles = new ArrayList<>();
                     List<String> notValidExtension = new ArrayList<>();
+                    List<String> skippedFiles = new ArrayList<>();
 
                     if (Files.isRegularFile(originPath)) {
                         Path destinationFile = finalDestinationPath.resolve(originPath.getFileName());

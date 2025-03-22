@@ -120,7 +120,7 @@ public class HelloController {
                     Path originPath;
                     Path destinationPath = Path.of(text_field_destination_copy.getText().trim());
 
-                    // Caso o combobox tenho um valor ele anula originPath e inicia o valor do originFile e no else faz ao contrario
+                    // Caso o combobox tenho um valor ele anula originPath e inicia o valor do originFile e no else faz ao contrário
                     if (comboBoxSelectValue != null && !comboBoxSelectValue.isEmpty() && combo_box_origin_copy.isVisible()) {
                         originPath = null;
 
@@ -162,7 +162,7 @@ public class HelloController {
                             progressbar_copy.progressProperty().bind(copyTask.progressProperty());
                         });
 
-                        copyTask.setOnSucceeded(event -> {
+                        copyTask.setOnSucceeded(workerStateEvent -> {
                             Platform.runLater(() -> {
                                 alert = new Alert(Alert.AlertType.INFORMATION);
                                 alert.setTitle("Copiado com sucesso!");
@@ -175,14 +175,12 @@ public class HelloController {
                             });
                         });
 
-                        copyTask.setOnFailed(event -> {
-                            Throwable exception = event.getSource().getException();
-
+                        copyTask.setOnFailed(workerStateEvent -> {
                             Platform.runLater(() -> {
                                 alert = new Alert(Alert.AlertType.ERROR);
                                 alert.setTitle("Ocorreu um erro na cópia dos arquivos.");
                                 alert.setHeaderText("Ocorreu um erro na cópia dos arquivos.");
-                                alert.setContentText("Erro na cópiar: " + exception.getCause());
+                                alert.setContentText("Erro na cópiar: " + copyTask.getMessage());
                                 alert.showAndWait();
 
                                 progressbar_copy.progressProperty().unbind();
@@ -269,12 +267,10 @@ public class HelloController {
                             });
 
                             ref.renameTask.setOnFailed(workerStateEvent -> {
-                                Throwable exception = workerStateEvent.getSource().getException();
-
                                 alert = new Alert(Alert.AlertType.ERROR);
                                 alert.setTitle("Falha na renomeação dos arquivos.");
                                 alert.setHeaderText("Falha na renomeação dos arquivos.");
-                                alert.setContentText("Não foi possível continuar o renomeio de arquivos devido a um erro: " + exception.getMessage());
+                                alert.setContentText("Não foi possível continuar o renomeio de arquivos devido a um erro: " + ref.renameTask.getMessage());
 
                                 progressbar_rename.progressProperty().unbind();
                                 progressbar_rename.setProgress(0);
@@ -323,12 +319,10 @@ public class HelloController {
                         });
 
                         convertTask.setOnFailed(workerStateEvent -> {
-                            Throwable exception = workerStateEvent.getSource().getException();
-
                             alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Falha na converter os arquivos.");
                             alert.setHeaderText("Falha na converter os arquivos.");
-                            alert.setContentText("Não foi possível continuar a conversão de arquivos devido a um erro: " + exception.getMessage());
+                            alert.setContentText("Não foi possível continuar a conversão de arquivos devido a um erro: " + convertTask.getMessage());
 
                             progressbar_convert.progressProperty().unbind();
                             progressbar_convert.setProgress(0);

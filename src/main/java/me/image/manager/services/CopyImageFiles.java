@@ -40,11 +40,18 @@ public class CopyImageFiles {
                     List<String> skippedFiles = new ArrayList<>();
 
                     if (Files.isRegularFile(originPath)) {
-                        Path destinationFile = finalDestinationPath.resolve(originPath.getFileName());
-                        copySingleFile(originPath, destinationFile);
+                        String fileName = originPath.getFileName().toString();
+                        boolean isValidFile = extensions.stream().anyMatch(fileName::endsWith);
 
+                        if (isValidFile) {
+                            Path destinationFile = finalDestinationPath.resolve(originPath.getFileName());
+                            copySingleFile(originPath, destinationFile);
+                        } else {
+                            notValidExtension.add(fileName);
+                            updateMessage("Arquivo inválido: " + fileName);
+                            throw new Exception("Falha ao processar arquivo inválido");
+                        }
                     } else if (Files.isDirectory(originPath)) {
-
                         try (var stream = Files.list(originPath)) {
                             List<Path> filesToCopy = stream.filter(sourceFile -> {
                                 String fileName = sourceFile.getFileName().toString();
@@ -68,10 +75,15 @@ public class CopyImageFiles {
                                     continue;
                                 }
 
-                                copySingleFile(sourceFile, destinationFile);
+                                try {
+                                    copySingleFile(sourceFile, destinationFile);
 
-                                copiedFiles++;
-                                updateProgress(copiedFiles, totalFiles);
+                                    copiedFiles++;
+                                    updateProgress(copiedFiles, totalFiles);
+                                } catch (RuntimeException | IOException exception) {
+                                    updateMessage(exception.getMessage());
+                                    throw exception;
+                                }
                             }
                         }
                     }
@@ -81,14 +93,14 @@ public class CopyImageFiles {
                             alert = new Alert(Alert.AlertType.WARNING);
                             alert.setTitle("Os diretórios podem conter arquivos inválidos!");
                             alert.setHeaderText("Os diretórios contem arquivos que são incompatíveis com o programa!");
-                            alert.setContentText("Alguns arquivos não podem ser copiados: \n" + notValidExtension);
+                            alert.setContentText("Alguns arquivos não podem ser copiados e foram ignorados: \n" + notValidExtension);
                             alert.showAndWait();
                         }
 
                         if (!skippedFiles.isEmpty()) {
                             alert = new Alert(Alert.AlertType.WARNING);
-                            alert.setTitle("Arquivos Ignorados");
-                            alert.setHeaderText("Arquivos Ignorados");
+                            alert.setTitle("Arquivos Ignorados!");
+                            alert.setHeaderText("Alguns arquivos foram ignorados");
                             alert.setContentText("Os seguintes arquivos já existem e foram ignorados: " + skippedFiles.stream().limit(5).toList() + "...");
                             alert.showAndWait();
                         }
@@ -130,20 +142,10 @@ public class CopyImageFiles {
                 try {
                     Thread.sleep(1000);
                     Files.copy(sourceFile, destinationFolder, StandardCopyOption.REPLACE_EXISTING);
-
                 } catch (IOException | InterruptedException exception) {
-                    Platform.runLater(() -> {
-                        alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Erro ao copiar!");
-                        alert.setHeaderText("Erro ao copiar!");
-                        alert.setContentText("Erro ao copiar arquivo: " + exception.getMessage());
-                        alert.showAndWait();
-                    });
-
                     throw new RuntimeException("Erro ao copiar arquivo: " + exception.getMessage(), exception);
                 }
             } else {
-                ioException.printStackTrace();
                 throw ioException;
             }
         }

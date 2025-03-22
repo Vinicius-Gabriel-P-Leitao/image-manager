@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ConvertImageFiles {
     private Alert alert;
@@ -23,6 +24,9 @@ public class ConvertImageFiles {
             protected Void call() throws Exception {
                 List<String> extensions = List.of(".png", ".tiff", ".jpg", ".jpeg", ".webp");
                 List<File> skippedFiles = new ArrayList<>();
+
+                long totalFiles = Files.list(originPath).filter(Files::isRegularFile).count();
+                AtomicLong convertedFiles = new AtomicLong();
 
                 Files.list(originPath).filter(Files::isRegularFile).forEach(file -> {
                     try {
@@ -43,15 +47,22 @@ public class ConvertImageFiles {
 
                         String fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
                         File outputFile = new File(file.getParent().toFile(), fileNameWithoutExtension + fileType);
-
                         String extension = fileType.startsWith(".") ? fileType.substring(1) : fileType;
-                        if (!ImageIO.write(bufferedImage, extension, outputFile)) {
+
+                        boolean isWritten = ImageIO.write(bufferedImage, extension, outputFile);
+                        if (!isWritten) {
                             skippedFiles.add(file.toFile());
                             return;
                         }
 
-                        updateProgress(skippedFiles.size(), extensions.size());
-                        Desktop.getDesktop().moveToTrash(file.toFile());
+                        if (outputFile.exists()) {
+                            convertedFiles.getAndIncrement();
+                            updateProgress(convertedFiles.get(), totalFiles);
+
+                            Desktop.getDesktop().moveToTrash(file.toFile());
+                        } else {
+                            skippedFiles.add(file.toFile());
+                        }
                     } catch (IOException exception) {
                         skippedFiles.add(file.toFile());
                     }
@@ -61,7 +72,7 @@ public class ConvertImageFiles {
                     alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Erro ao converter arquivos");
                     alert.setHeaderText("Erro ao converter arquivos!");
-                    alert.setContentText(String.format("Os arquivos não podem ser convertidos: %s", skippedFiles.stream().limit(5).toList()));
+                    alert.setContentText(String.format("Os arquivos não podem ser convertidos: %s ...", skippedFiles.stream().limit(5).toList()));
                     alert.showAndWait();
                 });
                 return null;

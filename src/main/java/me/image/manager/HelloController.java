@@ -23,7 +23,7 @@ import java.util.Objects;
 
 public class HelloController {
     private static final String DATE_HYPHEN = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\-(0[0-9]|[1-5][0-9])\\-(0[0-9]|[1-5][0-9])$";
-    private static final String DATE_BARS = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\_(0[0-9]|1[0-2])\\_\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
+    private static final String DATE_UNDERLINE = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\_(0[0-9]|1[0-2])\\_\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
     private static final String DATE_COMPLETE = "^([0-9]|0[0-9]|1[0-9]|2[0-9]|3[01])\\_([A-Za-zÀ-ú]+)\\_(\\d{4})\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
     // Copy UI
     public TextField text_field_origin_copy;
@@ -243,7 +243,7 @@ public class HelloController {
                         }
 
                         if (comboBoxSelectValue.equals("dd_MM_yyyy_HH_mm_ss")) {
-                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_BARS, comboBoxSelectValue);
+                            ref.renameTask = new RenameFiles().createTaskRenameFiles(originPath, nameFile, DATE_UNDERLINE, comboBoxSelectValue);
                         }
 
                         if (comboBoxSelectValue.equals("dd_MMMM_yyyy_HH_mm_ss")) {

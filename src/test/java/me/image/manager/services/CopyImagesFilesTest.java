@@ -53,13 +53,13 @@ class CopyImagesFilesTest extends ApplicationTest {
      * <h4>Realiza teste de caso perfeito e vaida se o arquivo foi realmente movido</h4>
      *
      * <p>
-     * O teste define o local de origem e destino do arquivo de testes image.png, após isso realiza a chamado do método
+     * O teste define o local de origem e destino do arquivo de testes image-1.png, após isso realiza a chamado do método
      * a ser testado e verifica se o destino que o arquivo foi movido é o que foi pré-definido.
      * </p>
      */
     @Test
     public void testCopyFilesWithValidFile() {
-        Path originPath = Paths.get("src/test/resources/origin/image.png");
+        Path originPath = Paths.get("src/test/resources/origin/copy/image-1.png");
         Path destinationPath = Paths.get("src/test/resources/destination");
 
         Task<Void> copyTask = copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);
@@ -81,7 +81,7 @@ class CopyImagesFilesTest extends ApplicationTest {
      */
     @Test
     public void testCopyFilesWithInvalidFile() throws IOException, ExecutionException, InterruptedException {
-        Path originPath = Paths.get("src/test/resources/origin/invalid-file.txt");
+        Path originPath = Paths.get("src/test/resources/origin/copy/invalid-file.txt");
         Path destinationPath = Paths.get("src/test/resources/destination");
 
         Task<Void> copyTask = copyImagesFiles.createTaskCopyFiles(originPath, destinationPath);

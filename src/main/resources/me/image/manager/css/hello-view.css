@@ -27,6 +27,11 @@
     -fx-text-fill: #ffffff;
 }
 
+.arquive_button {
+     -fx-size: 16px;
+}
+
 .font-icon {
+    -fx-icon-size: 16px;
     -fx-icon-color: white;
 }

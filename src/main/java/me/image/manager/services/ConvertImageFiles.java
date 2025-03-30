@@ -5,12 +5,13 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -59,7 +60,11 @@ public class ConvertImageFiles {
                             convertedFiles.getAndIncrement();
                             updateProgress(convertedFiles.get(), totalFiles);
 
-                            Desktop.getDesktop().moveToTrash(file.toFile());
+                            Path oldFilesDir = Paths.get(originPath.toString(), "old_files");
+                            Files.createDirectories(oldFilesDir);
+
+                            Path oldFilePath = Paths.get(oldFilesDir.toString(), fileName);
+                            Files.move(file, oldFilePath, StandardCopyOption.REPLACE_EXISTING);
                         } else {
                             skippedFiles.add(file.toFile());
                         }

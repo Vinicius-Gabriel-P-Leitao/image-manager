@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,22 +19,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>23</version>
+            <version>22</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>23</version>
+            <version>22</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>23</version>
+            <version>22</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>23</version>
+            <version>22</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -90,7 +90,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>17</release>
+                    <release>22</release>
+                    <source>22</source>
+                    <target>22</target>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -114,13 +119,16 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>me.image.manager.Main</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
+                            <mainClass>me.image.manager/me.image.manager.Main</mainClass>
                             <jlinkImageName>app</jlinkImageName>
+                            <noHeaderFiles>true</noHeaderFiles>
+                            <jlinkZipName>app</jlinkZipName>
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
+                            <launcher>app</launcher>
+                            <options>
+                                <option>--enable-native-access=ALL-UNNAMED</option>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>
@@ -140,14 +148,6 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>shaded</shadedClassifierName>
                             <finalName>manager</finalName>
-                            <filters>
-                                <filter>
-                                    <artifact>me.image.manager:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
@@ -156,6 +156,7 @@
                                     <manifestEntries>
                                         <mainClass>me.image.manager.Main</mainClass>
                                         <Implementation-Vendor>Vinicius</Implementation-Vendor>
+                                        <Add-Opens>ALL-UNNAMED</Add-Opens>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>

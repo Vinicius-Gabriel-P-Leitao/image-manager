@@ -44,10 +44,6 @@ public class HelloController {
     private Stage stage;
     private Alert alert;
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
     @FXML
     private void onPointerMouse(MouseEvent event) {
         Object elementActionThisEvent = event.getSource();

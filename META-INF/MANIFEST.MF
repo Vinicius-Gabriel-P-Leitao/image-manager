@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven 3.8.5
+Implementation-Vendor: Vinicius
+Built-By: vinicius
+Main-Class: me.image.manager.Main
+JavaFX-Application-Class: me.image.manager.Main

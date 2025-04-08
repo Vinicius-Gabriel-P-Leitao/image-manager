@@ -1,0 +1,37 @@
+* {
+	-fx-primary-color: #007acc;
+	-fx-secondary-color: #4B6EAF;
+	-fx-grey-color: #b9b9b9;
+
+	-fx-focus-color: -fx-secondary-color;
+}
+
+.text-field {
+	-fx-accent: -fx-primary-color;
+	-fx-background-color: #ff0000, white;
+	-fx-background-insets: 0, 0 0 1 0;
+	-fx-background-radius: 0;
+}
+
+.text-field:focused {
+	-fx-background-color: -fx-primary-color, white;
+}
+
+.button {
+    -fx-background-color: #ff0000;
+    -fx-text-fill: #ffffff;
+}
+
+.combo-box > * {
+    -fx-background-color: #ff0000;
+    -fx-text-fill: #ffffff;
+}
+
+.arquive_button {
+     -fx-size: 16px;
+}
+
+.font-icon {
+    -fx-icon-size: 16px;
+    -fx-icon-color: white;
+}

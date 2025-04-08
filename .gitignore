@@ -42,3 +42,6 @@ build/
 ### Code ###
 executable
 /dependency-reduced-pom.xml
+/resource/drive/*
+*credentials*
+**/trash

@@ -8,16 +8,16 @@ import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import me.image.manager.command.Command;
+import me.image.manager.command.context.OpenDirectoryChooserContext;
+import me.image.manager.command.events.OnOpenDirectoryChooserCommand;
 import me.image.manager.services.ConvertImageFiles;
 import me.image.manager.services.CopyImageFiles;
 import me.image.manager.services.RenameFiles;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,29 +25,36 @@ public class HelloController {
     private static final String DATE_HYPHEN = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\-(0[0-9]|1[0-2])\\-\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\-(0[0-9]|[1-5][0-9])\\-(0[0-9]|[1-5][0-9])$";
     private static final String DATE_UNDERLINE = "^(0[0-9]|1[0-9]|2[0-9]|3[01])\\_(0[0-9]|1[0-2])\\_\\d{4}\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
     private static final String DATE_COMPLETE = "^([0-9]|0[0-9]|1[0-9]|2[0-9]|3[01])\\_([A-Za-zÀ-ú]+)\\_(\\d{4})\\_(0[0-9]|1[0-9]|2[0-3])\\_(0[0-9]|[1-5][0-9])\\_(0[0-9]|[1-5][0-9])$";
-    // Copy UI
-    public TextField text_field_origin_copy;
-    public TextField text_field_destination_copy;
+    // Copy UI stackpane_origin_copy
+    @FXML
+    private TextField text_field_origin_copy;
+    @FXML
+    private TextField text_field_destination_copy;
     public ProgressBar progressbar_copy;
-    public ComboBox combo_box_origin_copy;
-    public StackPane stackpane_origin_copy;
+    @FXML
+    private ComboBox<Object> combo_box_origin_copy;
+    @FXML
+    private StackPane stackpane_origin_copy;
     // Rename UI
-    public TextField text_field_origin_rename;
+    @FXML
+    private TextField text_field_origin_rename;
     public TextField text_field_name_file;
     public ProgressBar progressbar_rename;
     public ComboBox combo_box_rename;
     // Convert UI
-    public TextField text_field_origin_convert;
+    @FXML
+    private TextField text_field_origin_convert;
     public ProgressBar progressbar_convert;
     public ComboBox combo_box_convert;
     // Variáveis de ui
     private Stage stage;
     private Alert alert;
 
+    private final Command<Map.Entry<ActionEvent, OpenDirectoryChooserContext>> openDirCommand = new OnOpenDirectoryChooserCommand();
+
     @FXML
     private void onPointerMouse(MouseEvent event) {
         Object elementActionThisEvent = event.getSource();
-
         if (elementActionThisEvent instanceof Button button) {
             button.setCursor(Cursor.HAND);
         }
@@ -55,53 +62,15 @@ public class HelloController {
 
     @FXML
     private void onOpenDirectoryChooser(ActionEvent event) {
-        DirectoryChooser pathChooser = new DirectoryChooser();
-        pathChooser.setInitialDirectory(Paths.get(System.getProperty("user.dir")).toFile());
-        pathChooser.setTitle("Escolher pastas");
-
-        File path = pathChooser.showDialog(stage);
-        if (path == null) throw new RuntimeException("A pasta não foi selecionada!");
-
-        if (event.getSource() instanceof Button button) {
-            String buttonId = button.getId();
-
-            if ("button_origin_copy".equals(buttonId)) {
-                File[] listFiles = path.listFiles();
-
-                if (listFiles != null) {
-                    combo_box_origin_copy.getItems().clear();
-                    combo_box_origin_copy.setValue(path);
-                    combo_box_origin_copy.getItems().add(path);
-
-                    for (File file : listFiles) {
-                        String displayName = file.isDirectory() ? "Pasta: " + file.getAbsolutePath() : "Arquivo: " + file.getAbsolutePath();
-                        combo_box_origin_copy.getItems().add(displayName);
-                    }
-
-                    text_field_origin_copy.setVisible(false);
-                    combo_box_origin_copy.setVisible(true);
-
-                    stackpane_origin_copy.getChildren().clear();
-                    stackpane_origin_copy.getChildren().add(combo_box_origin_copy);
-                }
-            }
-        }
-
-        Object elementActionThisEvent = event.getSource();
-        if (elementActionThisEvent instanceof Button button) {
-            Map<String, TextField> buttonToTextField = Map.of("button_origin_copy", text_field_origin_copy, "button_destination_copy", text_field_destination_copy, "button_directory_origin_rename", text_field_origin_rename, "button_directory_origin_convert", text_field_origin_convert);
-
-            TextField textField = buttonToTextField.get(button.getId());
-            if (textField != null) {
-                textField.setText(path.toString());
-            } else {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Não foi possível selecionar a pasta!");
-                alert.setHeaderText("Não foi possível selecionar a pasta!");
-                alert.setContentText("Erro ao selecionar pasta!");
-                alert.showAndWait();
-            }
-        }
+        OpenDirectoryChooserContext ctx = new OpenDirectoryChooserContext(
+                combo_box_origin_copy,
+                text_field_origin_copy,
+                text_field_destination_copy,
+                text_field_origin_rename,
+                text_field_origin_convert,
+                stackpane_origin_copy
+        );
+        openDirCommand.execute(Map.entry(event, ctx));
     }
 
     @FXML

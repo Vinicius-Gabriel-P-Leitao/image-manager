@@ -54,6 +54,28 @@
             <version>12.3.1</version>
         </dependency>
         <!--Dependências para icons -->
+        <!--Dependência para api do Google drive-->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>v3-rev20250220-2.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.39.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-gson</artifactId>
+            <version>1.46.3</version>
+        </dependency>
+        <!--Dependência para api do Google drive-->
         <!--Dependência para converter arquivos de imagem-->
         <dependency>
             <groupId>org.sejda.imageio</groupId>

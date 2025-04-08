@@ -5,22 +5,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 public class OpenDirectoryChooserContext {
-    public ComboBox<Object> comboBoxOriginCopy;
+    public ComboBox<Object> objectComboBox;
     public TextField textFieldOriginCopy;
     public TextField textFieldDestinationCopy;
     public TextField textFieldOriginRename;
     public TextField textFieldOriginConvert;
     public StackPane stackPaneOriginCopy;
 
-    public OpenDirectoryChooserContext(
-            ComboBox<Object> comboBoxOriginCopy,
-            TextField textFieldOriginCopy,
-            TextField textFieldDestinationCopy,
-            TextField textFieldOriginRename,
-            TextField textFieldOriginConvert,
-            StackPane stackPaneOriginCopy
-    ) {
-        this.comboBoxOriginCopy = comboBoxOriginCopy;
+    public OpenDirectoryChooserContext(ComboBox<Object> objectComboBox, TextField textFieldOriginCopy, TextField textFieldDestinationCopy, TextField textFieldOriginRename, TextField textFieldOriginConvert, StackPane stackPaneOriginCopy) {
+        this.objectComboBox = objectComboBox;
         this.textFieldOriginCopy = textFieldOriginCopy;
         this.textFieldDestinationCopy = textFieldDestinationCopy;
         this.textFieldOriginRename = textFieldOriginRename;

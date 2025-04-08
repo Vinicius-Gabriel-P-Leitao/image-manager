@@ -40,7 +40,7 @@ public class OnOpenDirectoryChooserCommand implements Command<Map.Entry<ActionEv
                 File[] listFiles = path.listFiles();
 
                 if (listFiles != null) {
-                    ComboBox<Object> comboBox = context.comboBoxOriginCopy;
+                    ComboBox<Object> comboBox = context.objectComboBox;
                     comboBox.getItems().clear();
                     comboBox.setValue(path);
                     comboBox.getItems().add(path);

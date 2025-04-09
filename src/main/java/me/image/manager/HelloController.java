@@ -124,6 +124,7 @@ public class HelloController {
         renameFilesCommand.execute(Map.entry(event, context));
     }
  
+
     /**
      * Executa a operação de conversão de arquivos.
      *

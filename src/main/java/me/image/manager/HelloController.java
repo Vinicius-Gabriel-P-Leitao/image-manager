@@ -1,5 +1,8 @@
 package me.image.manager;
 
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -14,7 +17,11 @@ import me.image.manager.command.context.OnRenameFilesContext;
 import me.image.manager.command.context.OpenDirectoryChooserContext;
 import me.image.manager.command.events.*;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Controlador principal da aplicação JavaFX.
@@ -54,6 +61,7 @@ public class HelloController {
     private final Command<Map.Entry<ActionEvent, OnCopyFilesContext>> copyFilesCommand = new OnCopyFilesCommand();
     private final Command<Map.Entry<ActionEvent, OnRenameFilesContext>> renameFilesCommand = new OnRenameFilesCommand();
     private final Command<Map.Entry<ActionEvent, OnConvertFilesContext>> convertFilesCommand = new OnConvertFilesCommand();
+    private final Command<Consumer<Drive>> getGoogleDrive = new OnConnectGoogleDrive();
 
     /**
      * Manipula eventos de movimento do mouse na interface.
@@ -63,6 +71,23 @@ public class HelloController {
     @FXML
     private void onPointerMouse(MouseEvent event) {
         mousePointer.execute(event);
+    }
+
+    @FXML
+    private void onConnectGoogleDrive() {
+        getGoogleDrive.execute((drive) -> {
+            try {
+                FileList result = drive.files().list()
+                        .setPageSize(10)
+                        .setFields("files(id, name, mimeType)")
+                        .execute();
+
+                List<File> files = result.getFiles();
+//                System.out.println(Arrays.toString(files.toArray()).replaceAll("[\\[\\],]", ""));
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 
     /**

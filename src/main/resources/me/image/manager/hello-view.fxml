@@ -11,6 +11,11 @@
     <!--Tab de copiar arquivos-->
     <Tab id="copy_tab" closable="false" text="Copiar">
         <VBox id="vbox_copy_origin_input" alignment="CENTER" spacing="15">
+            <Button onAction="#onConnectGoogleDrive">
+                <graphic>
+                    <FontIcon iconLiteral="zondi-folder-outline"/>
+                </graphic>
+            </Button>
             <!--Box de copiar arquivos de origem-->
             <HBox id="hbox_copy_origin_input" alignment="CENTER" spacing="10">
                 <StackPane fx:id="stackpane_origin_copy" HBox.hgrow="ALWAYS">

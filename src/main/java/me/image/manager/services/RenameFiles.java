@@ -18,13 +18,45 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RenameFiles {
-    Alert alert;
+    private Alert alert;
 
+    /**
+     * Formata uma data de acordo com o padrão especificado.
+     *
+     * @param date    A data a ser formatada
+     * @param pattern O padrão de formatação (ex: "dd/MM/yyyy")
+     * @return String com a data formatada
+     */
     private static String formatedDate(Date date, String pattern) {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern, new Locale("pt", "BR"));
         return sdf.format(date);
     }
 
+    /**
+     * Cria uma tarefa assíncrona para renomear arquivos de imagem de acordo com os parâmetros especificados.
+     *
+     * <p>A Task realiza as seguintes operações:</p>
+     * <ul>
+     *   <li>Filtra arquivos com extensões válidas (.png, .tiff, .jpg, .jpeg, .webp)</li>
+     *   <li>Renomeia os arquivos usando o nome base fornecido + data de modificação + contador</li>
+     *   <li>Valida o formato da data usando a expressão regular fornecida</li>
+     *   <li>Atualiza o progresso da operação</li>
+     *   <li>Fornece feedback sobre erros e arquivos inválidos</li>
+     * </ul>
+     *
+     * @param originPath  Caminho do diretório contendo os arquivos a serem renomeados (não pode ser null)
+     * @param nameFile    Nome base para os arquivos renomeados (será combinado com data e contador)
+     * @param regexToName Expressão regular para validação do formato da data no nome do arquivo (padrão regex Java)
+     * @param pattern     Padrão de formatação para a data no nome do arquivo (ver {@link java.text.SimpleDateFormat})
+     * @return Task<Void> configurada para executar a operação de renomeação em background
+     * @throws IOException      se ocorrer um erro ao acessar os arquivos ou diretórios
+     * @throws RuntimeException se a formatação da data falhar ou o padrão regex não for correspondido
+     * @see java.nio.file.Files
+     * @see java.util.regex.Pattern
+     * @see java.text.SimpleDateFormat
+     * @see javafx.concurrent.Task
+     * @since 0.0.1
+     */
     public Task<Void> createTaskRenameFiles(Path originPath, String nameFile, String regexToName, String pattern) {
         return new Task<Void>() {
             @Override
@@ -48,7 +80,7 @@ public class RenameFiles {
 
                     int totalFiles = filesToRename.size();
                     int renamedFilesToProgress = 0;
-                    int renamedFiles= 0;
+                    int renamedFiles = 0;
 
                     for (Path sourceFile : filesToRename) {
                         BasicFileAttributes attributes = Files.readAttributes(sourceFile, BasicFileAttributes.class);

@@ -21,6 +21,40 @@ public class OnRenameFilesCommand implements Command<Map.Entry<ActionEvent, OnRe
 
     private Alert alert;
 
+    /**
+     * Executa a ação de renomear arquivos em um diretório com base nos parâmetros fornecidos.
+     *
+     * <p>Este método implementa a interface {@code ActionHandler} e realiza as seguintes operações:</p>
+     * <ol>
+     *   <li>Valida os parâmetros de entrada (caminho e nome do arquivo)</li>
+     *   <li>Cria uma tarefa assíncrona para renomear os arquivos</li>
+     *   <li>Configura o formato de renomeação baseado na seleção do usuário</li>
+     *   <li>Atualiza a UI com progresso e resultados</li>
+     * </ol>
+     *
+     * <p><b>Fluxo de trabalho:</b></p>
+     * <ul>
+     *   <li>Verifica se a origem existe e se o nome do arquivo foi fornecido</li>
+     *   <li>Cria uma Task específica baseada no formato selecionado (dd-MM-yyyy_HH-mm-ss, etc)</li>
+     *   <li>Vincula a barra de progresso à Task</li>
+     *   <li>Exibe alertas de sucesso/erro</li>
+     * </ul>
+     *
+     * @param entry Entrada contendo:
+     *              <ul>
+     *                <li>ActionEvent: evento que disparou a execução</li>
+     *                <li>OnRenameFilesContext: contexto com componentes UI e parâmetros</li>
+     *              </ul>
+     * @throws RuntimeException Se:
+     *                          <ul>
+     *                            <li>Os parâmetros forem inválidos</li>
+     *                            <li>Nenhum formato for selecionado</li>
+     *                            <li>Ocorrer um erro durante o processamento</li>
+     *                          </ul>
+     * @see RenameFiles#createTaskRenameFiles(Path, String, String, String)
+     * @see Task
+     * @since 0.0.2
+     */
     @Override
     public void execute(Map.Entry<ActionEvent, OnRenameFilesContext> entry) {
         ActionEvent event = entry.getKey();

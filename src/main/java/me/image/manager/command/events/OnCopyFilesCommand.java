@@ -17,6 +17,40 @@ import java.util.Objects;
 public class OnCopyFilesCommand implements Command<Map.Entry<ActionEvent, OnCopyFilesContext>> {
     private Alert alert;
 
+    /**
+     * Executa a operação de cópia de arquivos baseada nos parâmetros fornecidos na interface.
+     *
+     * <p>Este método implementa a interface {@code ActionHandler} e realiza as seguintes operações:</p>
+     * <ol>
+     *   <li>Determina a origem dos arquivos (pode ser um arquivo/diretório único do ComboBox ou um diretório do TextField)</li>
+     *   <li>Valida os caminhos de origem e destino</li>
+     *   <li>Cria e executa uma tarefa assíncrona para copiar os arquivos</li>
+     *   <li>Atualiza a interface com o progresso e resultados da operação</li>
+     * </ol>
+     *
+     * <p><b>Fluxo de trabalho principal:</b></p>
+     * <ul>
+     *   <li>Verifica se a origem vem do ComboBox (prioritário) ou do TextField</li>
+     *   <li>Normaliza o caminho removendo prefixos "Pasta: "/"Arquivo: "</li>
+     *   <li>Valida se os caminhos são acessíveis</li>
+     *   <li>Inicia a cópia em uma thread separada</li>
+     *   <li>Atualiza a barra de progresso e exibe alertas conforme necessário</li>
+     * </ul>
+     *
+     * @param entry Par contendo:
+     *              <ul>
+     *                <li>{@link ActionEvent}: evento que disparou a execução</li>
+     *                <li>{@link OnCopyFilesContext}: contexto com componentes UI e configurações</li>
+     *              </ul>
+     * @throws RuntimeException Se:
+     *                          <ul>
+     *                            <li>Nenhum caminho de origem for fornecido</li>
+     *                            <li>O caminho de destino for inválido</li>
+     *                            <li>Ocorrer um erro durante a cópia</li>
+     *                          </ul>
+     * @see CopyImageFiles#createTaskCopyFiles(Path, Path)
+     * @since 0.0.2
+     */
     @Override
     public void execute(Map.Entry<ActionEvent, OnCopyFilesContext> entry) {
         ActionEvent event = entry.getKey();

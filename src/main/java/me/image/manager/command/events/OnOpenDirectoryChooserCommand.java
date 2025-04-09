@@ -17,6 +17,39 @@ import java.util.Map;
 
 public class OnOpenDirectoryChooserCommand implements Command<Map.Entry<ActionEvent, OpenDirectoryChooserContext>> {
 
+    /**
+     * Manipula a abertura do seletor de diretórios e atualiza os componentes de UI correspondentes.
+     *
+     * <p>Este método implementa a interface {@code ActionHandler} e realiza as seguintes operações:</p>
+     * <ol>
+     *   <li>Abre um diálogo {@link DirectoryChooser} para seleção de diretório</li>
+     *   <li>Atualiza diferentes componentes de UI baseado no botão que acionou o evento</li>
+     *   <li>Trata especialmente o caso do botão de origem para cópia, populando um ComboBox</li>
+     *   <li>Atualiza TextFields correspondentes aos botões de ação</li>
+     * </ol>
+     *
+     * <p><b>Fluxo principal:</b></p>
+     * <ul>
+     *   <li>Configura e exibe o seletor de diretórios</li>
+     *   <li>Se o botão for "button_origin_copy":
+     *     <ul>
+     *       <li>Popula um ComboBox com o diretório selecionado e seu conteúdo</li>
+     *       <li>Substitui o TextField pelo ComboBox na interface</li>
+     *     </ul>
+     *   </li>
+     *   <li>Para outros botões, atualiza o TextField correspondente com o caminho selecionado</li>
+     * </ul>
+     *
+     * @param entry Par contendo:
+     *              <ul>
+     *                <li>{@link ActionEvent}: evento que disparou a execução</li>
+     *                <li>{@link OpenDirectoryChooserContext}: contexto com componentes UI</li>
+     *              </ul>
+     * @throws RuntimeException Se nenhum diretório for selecionado no diálogo
+     * @see DirectoryChooser
+     * @see ComboBox
+     * @since 0.0.2
+     */
     @Override
     public void execute(Map.Entry<ActionEvent, OpenDirectoryChooserContext> entry) {
         ActionEvent event = entry.getKey();
@@ -31,7 +64,6 @@ public class OnOpenDirectoryChooserCommand implements Command<Map.Entry<ActionEv
 
         File path = pathChooser.showDialog((Stage) stage);
         if (path == null) throw new RuntimeException("A pasta não foi selecionada!");
-
 
         if (source instanceof Button button) {
             String buttonId = button.getId();
